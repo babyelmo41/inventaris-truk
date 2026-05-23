@@ -49,9 +49,21 @@ Route::middleware('simple.auth')->group(function () {
         // Users
         Route::get('/user', [InventoryController::class, 'users'])->name('users.index');
 
-        // Transactions
-        Route::get('/barang-masuk', [InventoryController::class, 'incoming'])->name('incoming.index');
-        Route::get('/barang-keluar', [InventoryController::class, 'outgoing'])->name('outgoing.index');
+        // Transactions - Barang Masuk
+        Route::get('/barang-masuk', [InventoryController::class, 'incoming'])->name('barang-masuk');
+        Route::get('/barang-masuk/create', [InventoryController::class, 'incomingCreate'])->name('barang-masuk.create');
+        Route::post('/barang-masuk', [InventoryController::class, 'incomingStore'])->name('barang-masuk.store');
+        Route::get('/barang-masuk/{transaction}/edit', [InventoryController::class, 'incomingEdit'])->name('barang-masuk.edit');
+        Route::put('/barang-masuk/{transaction}', [InventoryController::class, 'incomingUpdate'])->name('barang-masuk.update');
+        Route::delete('/barang-masuk/{transaction}', [InventoryController::class, 'incomingDestroy'])->name('barang-masuk.destroy');
+
+        // Transactions - Barang Keluar
+        Route::get('/barang-keluar', [InventoryController::class, 'outgoing'])->name('barang-keluar');
+        Route::get('/barang-keluar/create', [InventoryController::class, 'outgoingCreate'])->name('barang-keluar.create');
+        Route::post('/barang-keluar', [InventoryController::class, 'outgoingStore'])->name('barang-keluar.store');
+        Route::get('/barang-keluar/{transaction}/edit', [InventoryController::class, 'outgoingEdit'])->name('barang-keluar.edit');
+        Route::put('/barang-keluar/{transaction}', [InventoryController::class, 'outgoingUpdate'])->name('barang-keluar.update');
+        Route::delete('/barang-keluar/{transaction}', [InventoryController::class, 'outgoingDestroy'])->name('barang-keluar.destroy');
 
         // Reports
         Route::get('/laporan', [ReportController::class, 'index'])->name('reports.index');

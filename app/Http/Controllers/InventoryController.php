@@ -44,14 +44,15 @@ class InventoryController extends Controller
             'name' => 'required',
             'category_id' => 'required|exists:categories,id',
             'supplier_id' => 'required|exists:suppliers,id',
-            'stock' => 'required|integer|min:0',
             'min_stock' => 'required|integer|min:0',
             'unit' => 'required',
         ]);
 
-        Sparepart::create($request->all());
+        $data = $request->all();
+        $data['stock'] = 0; // Stok awal selalu 0
+        Sparepart::create($data);
 
-        return redirect()->route('admin.spareparts.index')->with('success', 'Sparepart berhasil ditambahkan!');
+        return redirect()->route('admin.spareparts.index')->with('success', 'Sparepart berhasil ditambahkan! Stok awal: 0');
     }
 
     public function sparepartEdit(Sparepart $sparepart): View
@@ -71,12 +72,13 @@ class InventoryController extends Controller
             'name' => 'required',
             'category_id' => 'required|exists:categories,id',
             'supplier_id' => 'required|exists:suppliers,id',
-            'stock' => 'required|integer|min:0',
             'min_stock' => 'required|integer|min:0',
             'unit' => 'required',
         ]);
 
-        $sparepart->update($request->all());
+        // Jangan update stok dari form ini
+        $data = $request->except(['stock']);
+        $sparepart->update($data);
 
         return redirect()->route('admin.spareparts.index')->with('success', 'Sparepart berhasil diupdate!');
     }
@@ -232,7 +234,7 @@ class InventoryController extends Controller
     }
 
     // ============================================
-    // TRANSACTIONS
+    // BARANG MASUK (CRUD)
     // ============================================
     public function incoming(): View
     {
@@ -243,11 +245,250 @@ class InventoryController extends Controller
         ]);
     }
 
+    public function incomingCreate(): View
+    {
+        return view('transactions.incoming-form', [
+            'title' => 'Tambah Barang Masuk',
+            'transaction' => null,
+            'suppliers' => Supplier::all(),
+            'spareparts' => Sparepart::all(),
+        ]);
+    }
+
+    public function incomingStore(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'date' => 'required|date',
+            'invoice_no' => 'required|unique:barang_masuk,invoice_no',
+            'supplier_id' => 'required|exists:suppliers,id',
+            'notes' => 'nullable',
+            'items' => 'required|array|min:1',
+            'items.*.sparepart_id' => 'required|exists:spareparts,id',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.price' => 'required|integer|min:0',
+        ]);
+
+        $transaction = BarangMasuk::create([
+            'invoice_no' => $request->invoice_no,
+            'date' => $request->date,
+            'supplier_id' => $request->supplier_id,
+            'user_id' => auth()->id(),
+            'notes' => $request->notes,
+        ]);
+
+        foreach ($request->items as $item) {
+            $transaction->details()->create([
+                'sparepart_id' => $item['sparepart_id'],
+                'quantity' => $item['quantity'],
+                'price' => $item['price'],
+            ]);
+
+            // Update stok otomatis
+            Sparepart::where('id', $item['sparepart_id'])->increment('stock', $item['quantity']);
+        }
+
+        return redirect()->route('admin.barang-masuk')->with('success', 'Barang masuk berhasil ditambahkan!');
+    }
+
+    public function incomingEdit(BarangMasuk $transaction): View
+    {
+        return view('transactions.incoming-form', [
+            'title' => 'Edit Barang Masuk',
+            'transaction' => $transaction->load('details.sparepart'),
+            'suppliers' => Supplier::all(),
+            'spareparts' => Sparepart::all(),
+        ]);
+    }
+
+    public function incomingUpdate(Request $request, BarangMasuk $transaction): RedirectResponse
+    {
+        $request->validate([
+            'date' => 'required|date',
+            'invoice_no' => 'required|unique:barang_masuk,invoice_no,' . $transaction->id,
+            'supplier_id' => 'required|exists:suppliers,id',
+            'notes' => 'nullable',
+            'items' => 'required|array|min:1',
+            'items.*.sparepart_id' => 'required|exists:spareparts,id',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.price' => 'required|integer|min:0',
+        ]);
+
+        // Kembalikan stok lama
+        foreach ($transaction->details as $detail) {
+            Sparepart::where('id', $detail->sparepart_id)->decrement('stock', $detail->quantity);
+        }
+
+        // Hapus detail lama
+        $transaction->details()->delete();
+
+        // Update header
+        $transaction->update([
+            'invoice_no' => $request->invoice_no,
+            'date' => $request->date,
+            'supplier_id' => $request->supplier_id,
+            'notes' => $request->notes,
+        ]);
+
+        // Simpan detail baru + update stok
+        foreach ($request->items as $item) {
+            $transaction->details()->create([
+                'sparepart_id' => $item['sparepart_id'],
+                'quantity' => $item['quantity'],
+                'price' => $item['price'],
+            ]);
+
+            Sparepart::where('id', $item['sparepart_id'])->increment('stock', $item['quantity']);
+        }
+
+        return redirect()->route('admin.barang-masuk')->with('success', 'Barang masuk berhasil diupdate!');
+    }
+
+    public function incomingDestroy(BarangMasuk $transaction): RedirectResponse
+    {
+        // Kembalikan stok
+        foreach ($transaction->details as $detail) {
+            Sparepart::where('id', $detail->sparepart_id)->decrement('stock', $detail->quantity);
+        }
+
+        $transaction->details()->delete();
+        $transaction->delete();
+
+        return redirect()->route('admin.barang-masuk')->with('success', 'Barang masuk berhasil dihapus!');
+    }
+
+    // ============================================
+    // BARANG KELUAR (CRUD)
+    // ============================================
     public function outgoing(): View
     {
         return view('transactions.outgoing', [
             'title' => 'Barang Keluar',
             'transactions' => BarangKeluar::with(['user', 'details.sparepart'])->latest('date')->get(),
         ]);
+    }
+
+    public function outgoingCreate(): View
+    {
+        return view('transactions.outgoing-form', [
+            'title' => 'Tambah Barang Keluar',
+            'transaction' => null,
+            'spareparts' => Sparepart::where('stock', '>', 0)->get(),
+        ]);
+    }
+
+    public function outgoingStore(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'date' => 'required|date',
+            'reference_no' => 'required|unique:barang_keluar,reference_no',
+            'purpose' => 'required',
+            'notes' => 'nullable',
+            'items' => 'required|array|min:1',
+            'items.*.sparepart_id' => 'required|exists:spareparts,id',
+            'items.*.quantity' => 'required|integer|min:1',
+        ]);
+
+        // Validasi stok cukup
+        foreach ($request->items as $item) {
+            $sparepart = Sparepart::find($item['sparepart_id']);
+            if ($sparepart->stock < $item['quantity']) {
+                return back()->withErrors(['items' => "Stok {$sparepart->name} tidak cukup! Stok tersedia: {$sparepart->stock}"])->withInput();
+            }
+        }
+
+        $transaction = BarangKeluar::create([
+            'reference_no' => $request->reference_no,
+            'date' => $request->date,
+            'purpose' => $request->purpose,
+            'user_id' => auth()->id(),
+            'notes' => $request->notes,
+        ]);
+
+        foreach ($request->items as $item) {
+            $transaction->details()->create([
+                'sparepart_id' => $item['sparepart_id'],
+                'quantity' => $item['quantity'],
+            ]);
+
+            // Update stok otomatis
+            Sparepart::where('id', $item['sparepart_id'])->decrement('stock', $item['quantity']);
+        }
+
+        return redirect()->route('admin.barang-keluar')->with('success', 'Barang keluar berhasil ditambahkan!');
+    }
+
+    public function outgoingEdit(BarangKeluar $transaction): View
+    {
+        return view('transactions.outgoing-form', [
+            'title' => 'Edit Barang Keluar',
+            'transaction' => $transaction->load('details.sparepart'),
+            'spareparts' => Sparepart::all(),
+        ]);
+    }
+
+    public function outgoingUpdate(Request $request, BarangKeluar $transaction): RedirectResponse
+    {
+        $request->validate([
+            'date' => 'required|date',
+            'reference_no' => 'required|unique:barang_keluar,reference_no,' . $transaction->id,
+            'purpose' => 'required',
+            'notes' => 'nullable',
+            'items' => 'required|array|min:1',
+            'items.*.sparepart_id' => 'required|exists:spareparts,id',
+            'items.*.quantity' => 'required|integer|min:1',
+        ]);
+
+        // Kembalikan stok lama
+        foreach ($transaction->details as $detail) {
+            Sparepart::where('id', $detail->sparepart_id)->increment('stock', $detail->quantity);
+        }
+
+        // Validasi stok cukup untuk data baru
+        foreach ($request->items as $item) {
+            $sparepart = Sparepart::find($item['sparepart_id']);
+            if ($sparepart->stock < $item['quantity']) {
+                // Rollback stok lama
+                foreach ($transaction->details as $detail) {
+                    Sparepart::where('id', $detail->sparepart_id)->decrement('stock', $detail->quantity);
+                }
+                return back()->withErrors(['items' => "Stok {$sparepart->name} tidak cukup! Stok tersedia: {$sparepart->stock}"])->withInput();
+            }
+        }
+
+        // Hapus detail lama
+        $transaction->details()->delete();
+
+        // Update header
+        $transaction->update([
+            'reference_no' => $request->reference_no,
+            'date' => $request->date,
+            'purpose' => $request->purpose,
+            'notes' => $request->notes,
+        ]);
+
+        // Simpan detail baru + update stok
+        foreach ($request->items as $item) {
+            $transaction->details()->create([
+                'sparepart_id' => $item['sparepart_id'],
+                'quantity' => $item['quantity'],
+            ]);
+
+            Sparepart::where('id', $item['sparepart_id'])->decrement('stock', $item['quantity']);
+        }
+
+        return redirect()->route('admin.barang-keluar')->with('success', 'Barang keluar berhasil diupdate!');
+    }
+
+    public function outgoingDestroy(BarangKeluar $transaction): RedirectResponse
+    {
+        // Kembalikan stok
+        foreach ($transaction->details as $detail) {
+            Sparepart::where('id', $detail->sparepart_id)->increment('stock', $detail->quantity);
+        }
+
+        $transaction->details()->delete();
+        $transaction->delete();
+
+        return redirect()->route('admin.barang-keluar')->with('success', 'Barang keluar berhasil dihapus!');
     }
 }

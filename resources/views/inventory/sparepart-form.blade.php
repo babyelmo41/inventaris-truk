@@ -72,13 +72,6 @@
 
         <div class="row">
             <div class="col-md-4 mb-3">
-                <label for="stock" class="form-label fw-semibold">Stok Saat Ini <span class="text-danger">*</span></label>
-                <input type="number" class="form-control @error('stock') is-invalid @enderror" id="stock" name="stock" value="{{ old('stock', $sparepart->stock ?? 0) }}" min="0" required>
-                @error('stock')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-            </div>
-            <div class="col-md-4 mb-3">
                 <label for="min_stock" class="form-label fw-semibold">Stok Minimum <span class="text-danger">*</span></label>
                 <input type="number" class="form-control @error('min_stock') is-invalid @enderror" id="min_stock" name="min_stock" value="{{ old('min_stock', $sparepart->min_stock ?? 0) }}" min="0" required>
                 @error('min_stock')
@@ -98,6 +91,12 @@
                 @enderror
             </div>
         </div>
+
+        @if(!$sparepart)
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>Stok awal akan dimulai dari <strong>0</strong>. Stok akan bertambah otomatis saat Anda input Barang Masuk.
+            </div>
+        @endif
 
         <div class="d-flex gap-2">
             <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-2"></i>{{ $sparepart ? 'Update' : 'Simpan' }}</button>

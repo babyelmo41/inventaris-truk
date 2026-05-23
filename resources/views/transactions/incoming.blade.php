@@ -7,6 +7,7 @@
             <h2 class="h5 fw-bold mb-1">Data Barang Masuk</h2>
             <div class="text-secondary">Daftar transaksi penerimaan sparepart ke gudang.</div>
         </div>
+        <a href="{{ route('admin.barang-masuk.create') }}" class="btn btn-primary"><i class="bi bi-plus-circle me-2"></i>Tambah Barang Masuk</a>
     </div>
 
     @if(session('success'))
@@ -29,6 +30,7 @@
                     <th class="text-end">Harga Satuan</th>
                     <th class="text-end">Subtotal</th>
                     <th>User</th>
+                    <th class="text-center">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -49,12 +51,26 @@
                             <td class="text-end fw-semibold">Rp {{ number_format($detail->quantity * $detail->price, 0, ',', '.') }}</td>
                             @if($loop->first)
                                 <td rowspan="{{ $transaction->details->count() }}">{{ $transaction->user->name }}</td>
+                                <td rowspan="{{ $transaction->details->count() }}" class="text-center">
+                                    <div class="d-flex gap-1 justify-content-center">
+                                        <a href="{{ route('admin.barang-masuk.edit', $transaction) }}" class="btn btn-sm btn-outline-warning" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <form action="{{ route('admin.barang-masuk.destroy', $transaction) }}" method="POST" onsubmit="return confirm('Yakin hapus transaksi ini? Stok akan dikembalikan.')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
                             @endif
                         </tr>
                     @endforeach
                 @empty
                     <tr>
-                        <td colspan="9" class="text-center text-secondary py-4">Belum ada transaksi barang masuk.</td>
+                        <td colspan="10" class="text-center text-secondary py-4">Belum ada transaksi barang masuk.</td>
                     </tr>
                 @endforelse
             </tbody>
