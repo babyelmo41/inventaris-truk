@@ -14,7 +14,7 @@
         </div>
     </div>
     <div class="py-3">
-        <div class="px-4 pb-2 small text-uppercase text-secondary fw-semibold">Monitoring</div>
+        <div class="px-4 pb-2 small text-uppercase text-secondary fw-semibold">Menu Utama</div>
         <nav class="nav flex-column">
             @foreach($items as $item)
                 <a class="nav-link {{ request()->routeIs($item['route']) ? 'active' : '' }}" href="{{ route($item['route'], $item['params'] ?? []) }}">

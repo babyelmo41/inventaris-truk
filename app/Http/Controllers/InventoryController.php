@@ -21,7 +21,7 @@ class InventoryController extends Controller
     {
         return view('inventory.spareparts', [
             'title' => 'Data Sparepart',
-            'spareparts' => Sparepart::with(['category', 'supplier'])->get(),
+            'spareparts' => Sparepart::with(['category', 'supplier'])->paginate(10),
             'categories' => Category::all(),
             'suppliers' => Supplier::all(),
         ]);
@@ -97,7 +97,7 @@ class InventoryController extends Controller
     {
         return view('inventory.categories', [
             'title' => 'Data Kategori',
-            'categories' => Category::withCount('spareparts')->get(),
+            'categories' => Category::withCount('spareparts')->paginate(10),
         ]);
     }
 
@@ -155,7 +155,7 @@ class InventoryController extends Controller
     {
         return view('inventory.suppliers', [
             'title' => 'Data Supplier',
-            'suppliers' => Supplier::withCount('spareparts')->get(),
+            'suppliers' => Supplier::withCount('spareparts')->paginate(10),
         ]);
     }
 
@@ -217,7 +217,7 @@ class InventoryController extends Controller
     {
         return view('inventory.users', [
             'title' => 'Data User',
-            'users' => User::all(),
+            'users' => User::paginate(10),
         ]);
     }
 
@@ -228,7 +228,7 @@ class InventoryController extends Controller
     {
         return view('inventory.monitoring', [
             'title' => 'Monitoring Stok',
-            'spareparts' => Sparepart::with(['category', 'supplier'])->get(),
+            'spareparts' => Sparepart::with(['category', 'supplier'])->paginate(10),
             'categories' => Category::pluck('name')->toArray(),
         ]);
     }
@@ -240,7 +240,7 @@ class InventoryController extends Controller
     {
         return view('transactions.incoming', [
             'title' => 'Barang Masuk',
-            'transactions' => BarangMasuk::with(['supplier', 'user', 'details.sparepart'])->latest('date')->get(),
+            'transactions' => BarangMasuk::with(['supplier', 'user', 'details.sparepart'])->latest('date')->paginate(10),
             'suppliers' => Supplier::all(),
         ]);
     }
@@ -363,7 +363,7 @@ class InventoryController extends Controller
     {
         return view('transactions.outgoing', [
             'title' => 'Barang Keluar',
-            'transactions' => BarangKeluar::with(['user', 'details.sparepart'])->latest('date')->get(),
+            'transactions' => BarangKeluar::with(['user', 'details.sparepart'])->latest('date')->paginate(10),
         ]);
     }
 

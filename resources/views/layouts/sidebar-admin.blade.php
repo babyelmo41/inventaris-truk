@@ -1,10 +1,10 @@
 @php
     $items = [
         ['label' => 'Dashboard', 'icon' => 'bi-speedometer2', 'route' => 'admin.dashboard'],
-        ['label' => 'Data Sparepart', 'icon' => 'bi-boxes', 'route' => 'admin.spareparts.index'],
+        ['label' => 'Data User', 'icon' => 'bi-people', 'route' => 'admin.users.index'],
         ['label' => 'Data Kategori', 'icon' => 'bi-tags', 'route' => 'admin.categories.index'],
         ['label' => 'Data Supplier', 'icon' => 'bi-truck', 'route' => 'admin.suppliers.index'],
-        ['label' => 'Data User', 'icon' => 'bi-people', 'route' => 'admin.users.index'],
+        ['label' => 'Data Sparepart', 'icon' => 'bi-boxes', 'route' => 'admin.spareparts.index'],
         ['label' => 'Barang Masuk', 'icon' => 'bi-box-arrow-in-down', 'route' => 'admin.barang-masuk'],
         ['label' => 'Barang Keluar', 'icon' => 'bi-box-arrow-up', 'route' => 'admin.barang-keluar'],
         ['label' => 'Monitoring Stok', 'icon' => 'bi-clipboard-data', 'route' => 'stock.monitoring'],

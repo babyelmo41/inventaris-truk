@@ -47,34 +47,4 @@
         </div>
     </div>
 </div>
-
-<div class="panel-card p-4 mt-4">
-    <h2 class="h5 fw-bold mb-3">Tabel Laporan Terbaru</h2>
-    <div class="table-responsive">
-        <table class="table table-hover mb-0">
-            <thead class="table-light">
-                <tr>
-                    <th>Tanggal</th>
-                    <th>Nama Laporan</th>
-                    <th>Status</th>
-                    <th class="text-end">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($reports as $report)
-                    <tr>
-                        <td>{{ $report['date'] }}</td>
-                        <td class="fw-semibold">{{ $report['name'] }}</td>
-                        <td><span class="badge {{ $report['status'] === 'Perlu Perhatian' ? 'text-bg-warning' : ($report['status'] === 'Belum Ada Data' ? 'text-bg-secondary' : 'text-bg-success') }}">{{ $report['status'] }}</span></td>
-                        <td class="text-end">
-                            <a href="{{ route('reports.show', $report['type']) }}" class="btn btn-sm btn-outline-primary" title="Lihat Laporan">
-                                <i class="bi bi-eye"></i>
-                            </a>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-</div>
 @endsection

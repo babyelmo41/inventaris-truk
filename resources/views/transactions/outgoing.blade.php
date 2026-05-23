@@ -75,4 +75,8 @@
         </table>
     </div>
 </div>
+
+<div class="d-flex justify-content-center mt-4">
+    {{$transactions->links()}}
+</div>
 @endsection

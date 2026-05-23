@@ -53,4 +53,8 @@
         </table>
     </div>
 </div>
+
+<div class="d-flex justify-content-center mt-4">
+    {{$categories->links()}}
+</div>
 @endsection
