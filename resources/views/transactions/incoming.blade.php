@@ -23,6 +23,7 @@
                 <tr>
                     <th>No</th>
                     <th>Tanggal</th>
+                    <th>Waktu</th>
                     <th>No Invoice</th>
                     <th>Supplier</th>
                     <th>Sparepart</th>
@@ -40,6 +41,7 @@
                             @if($loop->first)
                                 <td rowspan="{{ $transaction->details->count() }}">{{ $loop->parent->iteration }}</td>
                                 <td rowspan="{{ $transaction->details->count() }}">{{ $transaction->date->format('d M Y') }}</td>
+                                <td rowspan="{{ $transaction->details->count() }}">{{ \Carbon\Carbon::parse($transaction->time)->format('H:i') }}</td>
                                 <td rowspan="{{ $transaction->details->count() }}">
                                     <span class="fw-semibold">{{ $transaction->invoice_no }}</span>
                                 </td>

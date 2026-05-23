@@ -28,21 +28,28 @@
 
         {{-- Header --}}
         <div class="row mb-4">
-            <div class="col-md-4 mb-3">
+            <div class="col-md-3 mb-3">
                 <label for="date" class="form-label fw-semibold">Tanggal <span class="text-danger">*</span></label>
                 <input type="date" class="form-control @error('date') is-invalid @enderror" id="date" name="date" value="{{ old('date', $transaction ? $transaction->date->format('Y-m-d') : date('Y-m-d')) }}" required>
                 @error('date')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
-            <div class="col-md-4 mb-3">
+            <div class="col-md-3 mb-3">
+                <label for="time" class="form-label fw-semibold">Waktu <span class="text-danger">*</span></label>
+                <input type="time" class="form-control @error('time') is-invalid @enderror" id="time" name="time" value="{{ old('time', $transaction ? $transaction->time : date('H:i')) }}" required>
+                @error('time')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="col-md-3 mb-3">
                 <label for="reference_no" class="form-label fw-semibold">No Referensi <span class="text-danger">*</span></label>
                 <input type="text" class="form-control @error('reference_no') is-invalid @enderror" id="reference_no" name="reference_no" value="{{ old('reference_no', $transaction->reference_no ?? '') }}" placeholder="Contoh: REF-2024-001" required>
                 @error('reference_no')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
-            <div class="col-md-4 mb-3">
+            <div class="col-md-3 mb-3">
                 <label for="purpose" class="form-label fw-semibold">Keperluan <span class="text-danger">*</span></label>
                 <input type="text" class="form-control @error('purpose') is-invalid @enderror" id="purpose" name="purpose" value="{{ old('purpose', $transaction->purpose ?? '') }}" placeholder="Contoh: Servis Truk Hino 500" required>
                 @error('purpose')

@@ -166,6 +166,54 @@
     </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Hover effect untuk tabel dengan rowspan (Barang Masuk/Keluar)
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('table tbody').forEach(tbody => {
+        let currentGroup = [];
+        let groupStart = -1;
+
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+
+        rows.forEach((row, index) => {
+            // Cek apakah baris ini punya cell dengan rowspan
+            const hasRowspan = Array.from(row.cells).some(cell => cell.hasAttribute('rowspan'));
+
+            if (hasRowspan) {
+                // Simpan group sebelumnya
+                if (currentGroup.length > 0) {
+                    attachHover(currentGroup);
+                }
+                // Mulai group baru
+                currentGroup = [row];
+                groupStart = index;
+            } else if (groupStart >= 0) {
+                // Lanjutkan group yang sama
+                currentGroup.push(row);
+            } else {
+                // Baris standalone
+                attachHover([row]);
+            }
+        });
+
+        // Simpan group terakhir
+        if (currentGroup.length > 0) {
+            attachHover(currentGroup);
+        }
+    });
+
+    function attachHover(rows) {
+        rows.forEach(row => {
+            row.addEventListener('mouseenter', () => {
+                rows.forEach(r => r.classList.add('table-active'));
+            });
+            row.addEventListener('mouseleave', () => {
+                rows.forEach(r => r.classList.remove('table-active'));
+            });
+        });
+    }
+});
+</script>
 @stack('scripts')
 </body>
 </html>

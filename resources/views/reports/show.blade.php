@@ -13,14 +13,6 @@
         </div>
     </div>
 
-    {{-- Info Filter --}}
-    <div class="mb-3">
-        <small class="text-secondary">
-            <i class="bi bi-funnel me-1"></i>
-            Filter tersedia: {{ implode(', ', $report['filters']) }}
-        </small>
-    </div>
-
     {{-- Tabel Report --}}
     <div class="table-responsive">
         <table class="table table-hover table-striped mb-0" id="report-table">
@@ -68,40 +60,73 @@
             </tfoot>
         </table>
     </div>
-
-    {{-- Info Relasi Database --}}
-    <div class="mt-4 p-3 bg-light rounded">
-        <h6 class="fw-bold mb-2"><i class="bi bi-diagram-3 me-2"></i>Informasi Relasi Database</h6>
-        <small class="text-secondary">
-            @if($type === 'stok-sparepart')
-                <code>spareparts</code> → <code>categories</code> (category_id)<br>
-                <code>spareparts</code> → <code>suppliers</code> (supplier_id)
-            @elseif($type === 'barang-masuk')
-                <code>barang_masuk</code> → <code>suppliers</code> (supplier_id)<br>
-                <code>barang_masuk</code> → <code>detail_barang_masuk</code> (id)<br>
-                <code>detail_barang_masuk</code> → <code>spareparts</code> (sparepart_id)
-            @elseif($type === 'barang-keluar')
-                <code>barang_keluar</code> → <code>detail_barang_keluar</code> (id)<br>
-                <code>detail_barang_keluar</code> → <code>spareparts</code> (sparepart_id)<br>
-                <code>barang_keluar</code> → <code>users</code> (user_id)
-            @elseif($type === 'stok-minimum')
-                <code>spareparts</code> → <code>categories</code> (category_id)<br>
-                <code>spareparts</code> → <code>suppliers</code> (supplier_id)<br>
-                <i>Kondisi: WHERE stock ≤ min_stock</i>
-            @elseif($type === 'riwayat-transaksi')
-                <code>UNION ALL</code>:<br>
-                <code>barang_masuk</code> → <code>detail_barang_masuk</code> → <code>spareparts</code> → <code>users</code><br>
-                <code>barang_keluar</code> → <code>detail_barang_keluar</code> → <code>spareparts</code> → <code>users</code>
-            @endif
-        </small>
-    </div>
 </div>
 
 <style>
     @media print {
-        .sidebar, .topbar, .btn { display: none !important; }
-        .main-area { margin-left: 0 !important; }
-        .panel-card { box-shadow: none !important; border: none !important; }
+        /* Sembunyikan elemen UI */
+        .sidebar, .topbar, .btn, .navbar { display: none !important; }
+
+        /* Layout full width */
+        .main-area { margin-left: 0 !important; padding: 0 !important; }
+        .content-wrap { padding: 0 !important; }
+        .panel-card { box-shadow: none !important; border: none !important; padding: 0 !important; }
+
+        /* Orientasi landscape untuk tabel lebar */
+        @page {
+            size: landscape;
+            margin: 1.5cm;
+        }
+
+        /* Header cetak */
+        body::before {
+            content: "PT. Chakra Jawara - {{ $report['title'] }}";
+            display: block;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        /* Tabel */
+        table {
+            font-size: 11px !important;
+            width: 100% !important;
+        }
+
+        th, td {
+            padding: 4px 8px !important;
+            border: 1px solid #ddd !important;
+        }
+
+        thead {
+            background-color: #f0f0f0 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        /* Badge tetap terlihat */
+        .badge {
+            border: 1px solid currentColor;
+            padding: 2px 6px;
+            font-size: 10px;
+        }
+
+        /* Footer info */
+        tfoot {
+            font-weight: bold;
+        }
+
+        /* Page break yang rapi */
+        tr {
+            page-break-inside: avoid;
+        }
+
+        thead {
+            display: table-header-group;
+        }
     }
 </style>
 @endsection

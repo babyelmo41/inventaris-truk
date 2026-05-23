@@ -28,21 +28,28 @@
 
         {{-- Header --}}
         <div class="row mb-4">
-            <div class="col-md-4 mb-3">
+            <div class="col-md-3 mb-3">
                 <label for="date" class="form-label fw-semibold">Tanggal <span class="text-danger">*</span></label>
                 <input type="date" class="form-control @error('date') is-invalid @enderror" id="date" name="date" value="{{ old('date', $transaction ? $transaction->date->format('Y-m-d') : date('Y-m-d')) }}" required>
                 @error('date')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
-            <div class="col-md-4 mb-3">
+            <div class="col-md-3 mb-3">
+                <label for="time" class="form-label fw-semibold">Waktu <span class="text-danger">*</span></label>
+                <input type="time" class="form-control @error('time') is-invalid @enderror" id="time" name="time" value="{{ old('time', $transaction ? $transaction->time : date('H:i')) }}" required>
+                @error('time')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="col-md-3 mb-3">
                 <label for="invoice_no" class="form-label fw-semibold">No Invoice <span class="text-danger">*</span></label>
                 <input type="text" class="form-control @error('invoice_no') is-invalid @enderror" id="invoice_no" name="invoice_no" value="{{ old('invoice_no', $transaction->invoice_no ?? '') }}" placeholder="Contoh: INV-2024-001" required>
                 @error('invoice_no')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
-            <div class="col-md-4 mb-3">
+            <div class="col-md-3 mb-3">
                 <label for="supplier_id" class="form-label fw-semibold">Supplier <span class="text-danger">*</span></label>
                 <select class="form-select @error('supplier_id') is-invalid @enderror" id="supplier_id" name="supplier_id" required>
                     <option value="">-- Pilih Supplier --</option>

@@ -11,6 +11,7 @@ class BarangKeluar extends Model
     protected $fillable = [
         'reference_no',
         'date',
+        'time',
         'purpose',
         'user_id',
         'notes',

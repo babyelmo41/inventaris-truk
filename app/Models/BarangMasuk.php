@@ -11,6 +11,7 @@ class BarangMasuk extends Model
     protected $fillable = [
         'invoice_no',
         'date',
+        'time',
         'supplier_id',
         'user_id',
         'notes',

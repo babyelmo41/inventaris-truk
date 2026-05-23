@@ -228,7 +228,7 @@ class InventoryController extends Controller
     {
         return view('inventory.monitoring', [
             'title' => 'Monitoring Stok',
-            'spareparts' => Sparepart::with(['category', 'supplier'])->paginate(10),
+            'spareparts' => Sparepart::with(['category', 'supplier'])->get(),
             'categories' => Category::pluck('name')->toArray(),
         ]);
     }
@@ -259,6 +259,7 @@ class InventoryController extends Controller
     {
         $request->validate([
             'date' => 'required|date',
+            'time' => 'required',
             'invoice_no' => 'required|unique:barang_masuk,invoice_no',
             'supplier_id' => 'required|exists:suppliers,id',
             'notes' => 'nullable',
@@ -271,6 +272,7 @@ class InventoryController extends Controller
         $transaction = BarangMasuk::create([
             'invoice_no' => $request->invoice_no,
             'date' => $request->date,
+            'time' => $request->time,
             'supplier_id' => $request->supplier_id,
             'user_id' => auth()->id(),
             'notes' => $request->notes,
@@ -304,6 +306,7 @@ class InventoryController extends Controller
     {
         $request->validate([
             'date' => 'required|date',
+            'time' => 'required',
             'invoice_no' => 'required|unique:barang_masuk,invoice_no,' . $transaction->id,
             'supplier_id' => 'required|exists:suppliers,id',
             'notes' => 'nullable',
@@ -325,6 +328,7 @@ class InventoryController extends Controller
         $transaction->update([
             'invoice_no' => $request->invoice_no,
             'date' => $request->date,
+            'time' => $request->time,
             'supplier_id' => $request->supplier_id,
             'notes' => $request->notes,
         ]);
@@ -430,6 +434,7 @@ class InventoryController extends Controller
     {
         $request->validate([
             'date' => 'required|date',
+            'time' => 'required',
             'reference_no' => 'required|unique:barang_keluar,reference_no,' . $transaction->id,
             'purpose' => 'required',
             'notes' => 'nullable',
@@ -462,6 +467,7 @@ class InventoryController extends Controller
         $transaction->update([
             'reference_no' => $request->reference_no,
             'date' => $request->date,
+            'time' => $request->time,
             'purpose' => $request->purpose,
             'notes' => $request->notes,
         ]);

@@ -23,11 +23,13 @@ class DashboardController extends Controller
             ],
             'activities' => BarangMasuk::with(['supplier', 'user'])
                 ->latest('date')
+                ->latest('time')
                 ->limit(3)
                 ->get()
                 ->map(function ($masuk) {
                     return [
-                        'time' => $masuk->date->format('H:i'),
+                        'date' => $masuk->date->format('d M Y'),
+                        'time' => \Carbon\Carbon::parse($masuk->time)->format('H:i'),
                         'code' => $masuk->invoice_no,
                         'item' => $masuk->details->first()?->sparepart?->name ?? '-',
                         'type' => 'Barang Masuk',
@@ -38,11 +40,13 @@ class DashboardController extends Controller
                 ->merge(
                     BarangKeluar::with(['user'])
                         ->latest('date')
+                        ->latest('time')
                         ->limit(3)
                         ->get()
                         ->map(function ($keluar) {
                             return [
-                                'time' => $keluar->date->format('H:i'),
+                                'date' => $keluar->date->format('d M Y'),
+                                'time' => \Carbon\Carbon::parse($keluar->time)->format('H:i'),
                                 'code' => $keluar->reference_no,
                                 'item' => $keluar->details->first()?->sparepart?->name ?? '-',
                                 'type' => 'Barang Keluar',

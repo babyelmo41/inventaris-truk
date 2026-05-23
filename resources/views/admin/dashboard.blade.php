@@ -41,6 +41,7 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">
                         <tr>
+                            <th>Tanggal</th>
                             <th>Waktu</th>
                             <th>Transaksi</th>
                             <th>Qty</th>
@@ -49,6 +50,7 @@
                     <tbody>
                         @foreach($activities as $activity)
                             <tr>
+                                <td class="fw-semibold">{{ $activity['date'] }}</td>
                                 <td class="fw-semibold">{{ $activity['time'] }}</td>
                                 <td>
                                     <div class="fw-semibold">{{ $activity['item'] }}</div>

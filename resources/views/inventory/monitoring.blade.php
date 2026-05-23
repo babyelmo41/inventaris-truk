@@ -110,8 +110,4 @@
     categoryFilter.addEventListener('change', filterTable);
 </script>
 @endpush
-
-<div class="d-flex justify-content-center mt-4">
-    {{$spareparts->links()}}
-</div>
 @endsection

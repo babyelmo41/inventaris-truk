@@ -4,7 +4,7 @@
 <div class="panel-card p-4">
     <div class="mb-4">
         <h2 class="h5 fw-bold mb-1">Laporan</h2>
-        <div class="text-secondary">Pilih laporan yang ingin dilihat. Semua laporan menggunakan relasi antar tabel database.</div>
+        <div class="text-secondary">Pilih laporan yang ingin dilihat atau dicetak.</div>
     </div>
 
     <div class="row g-3">
@@ -18,11 +18,7 @@
                         </div>
                         <div>
                             <h6 class="fw-bold mb-1">Laporan Stok Sparepart</h6>
-                            <p class="text-secondary small mb-2">Stok seluruh sparepart berdasarkan kategori dan supplier.</p>
-                            <small class="text-muted">
-                                <i class="bi bi-diagram-3 me-1"></i>
-                                JOIN: spareparts → categories, suppliers
-                            </small>
+                            <p class="text-secondary small mb-0">Stok seluruh sparepart berdasarkan kategori dan supplier.</p>
                         </div>
                     </div>
                 </div>
@@ -42,11 +38,7 @@
                         </div>
                         <div>
                             <h6 class="fw-bold mb-1">Laporan Barang Masuk</h6>
-                            <p class="text-secondary small mb-2">Transaksi barang masuk berdasarkan periode dan supplier.</p>
-                            <small class="text-muted">
-                                <i class="bi bi-diagram-3 me-1"></i>
-                                JOIN: barang_masuk → detail → spareparts → suppliers
-                            </small>
+                            <p class="text-secondary small mb-0">Transaksi barang masuk berdasarkan periode dan supplier.</p>
                         </div>
                     </div>
                 </div>
@@ -66,11 +58,7 @@
                         </div>
                         <div>
                             <h6 class="fw-bold mb-1">Laporan Barang Keluar</h6>
-                            <p class="text-secondary small mb-2">Transaksi barang keluar berdasarkan periode dan tujuan.</p>
-                            <small class="text-muted">
-                                <i class="bi bi-diagram-3 me-1"></i>
-                                JOIN: barang_keluar → detail → spareparts, users
-                            </small>
+                            <p class="text-secondary small mb-0">Transaksi barang keluar berdasarkan periode dan tujuan.</p>
                         </div>
                     </div>
                 </div>
@@ -90,11 +78,7 @@
                         </div>
                         <div>
                             <h6 class="fw-bold mb-1">Laporan Stok Minimum</h6>
-                            <p class="text-secondary small mb-2">Sparepart yang stoknya sudah di bawah batas minimum.</p>
-                            <small class="text-muted">
-                                <i class="bi bi-diagram-3 me-1"></i>
-                                JOIN: spareparts → categories, suppliers + WHERE stock ≤ min_stock
-                            </small>
+                            <p class="text-secondary small mb-0">Sparepart yang stoknya sudah di bawah batas minimum.</p>
                         </div>
                     </div>
                 </div>
@@ -114,11 +98,7 @@
                         </div>
                         <div>
                             <h6 class="fw-bold mb-1">Riwayat Transaksi Sparepart</h6>
-                            <p class="text-secondary small mb-2">Histori seluruh transaksi barang masuk dan keluar.</p>
-                            <small class="text-muted">
-                                <i class="bi bi-diagram-3 me-1"></i>
-                                UNION ALL: barang_masuk + barang_keluar → detail → spareparts → users
-                            </small>
+                            <p class="text-secondary small mb-0">Histori seluruh transaksi barang masuk dan keluar.</p>
                         </div>
                     </div>
                 </div>

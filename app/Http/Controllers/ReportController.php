@@ -32,14 +32,9 @@ class ReportController extends Controller
     private function reports(): array
     {
         return [
-            // ============================================
-            // REPORT 1: Stok Sparepart Saat Ini
-            // Relasi: spareparts → categories, suppliers
-            // ============================================
             'stok-sparepart' => [
                 'title' => 'Laporan Stok Sparepart',
                 'description' => 'Preview stok seluruh sparepart berdasarkan kategori dan supplier.',
-                'filters' => ['kategori', 'supplier'],
                 'headers' => ['Kode Barang', 'Nama Barang', 'Kategori', 'Supplier', 'Stok', 'Stok Minimum', 'Status'],
                 'rows' => Sparepart::select(
                         'spareparts.code',
@@ -69,14 +64,9 @@ class ReportController extends Controller
                     ->toArray(),
             ],
 
-            // ============================================
-            // REPORT 2: Barang Masuk
-            // Relasi: barang_masuk → detail → spareparts → suppliers, users
-            // ============================================
             'barang-masuk' => [
                 'title' => 'Laporan Barang Masuk',
                 'description' => 'Preview transaksi barang masuk berdasarkan periode dan supplier.',
-                'filters' => ['tanggal', 'supplier'],
                 'headers' => ['Tanggal', 'No Transaksi', 'Supplier', 'Sparepart', 'Jumlah', 'Total'],
                 'rows' => BarangMasuk::select(
                         'barang_masuk.date',
@@ -102,14 +92,9 @@ class ReportController extends Controller
                     ->toArray(),
             ],
 
-            // ============================================
-            // REPORT 3: Barang Keluar
-            // Relasi: barang_keluar → detail → spareparts, users
-            // ============================================
             'barang-keluar' => [
                 'title' => 'Laporan Barang Keluar',
                 'description' => 'Preview transaksi barang keluar berdasarkan periode dan tujuan penggunaan.',
-                'filters' => ['tanggal', 'kategori'],
                 'headers' => ['Tanggal', 'No Transaksi', 'Tujuan', 'Sparepart', 'Jumlah Keluar', 'Keterangan'],
                 'rows' => BarangKeluar::select(
                         'barang_keluar.date',
@@ -134,14 +119,9 @@ class ReportController extends Controller
                     ->toArray(),
             ],
 
-            // ============================================
-            // REPORT 4: Stok Minimum / Hampir Habis
-            // Relasi: spareparts → categories, suppliers
-            // ============================================
             'stok-minimum' => [
                 'title' => 'Laporan Stok Minimum',
                 'description' => 'Sparepart yang stoknya sudah mencapai atau di bawah batas minimum.',
-                'filters' => ['kategori', 'supplier'],
                 'headers' => ['Kode Barang', 'Nama Barang', 'Kategori', 'Supplier', 'Stok Tersisa', 'Stok Minimum', 'Status'],
                 'rows' => Sparepart::select(
                         'spareparts.code',
@@ -171,14 +151,9 @@ class ReportController extends Controller
                     ->toArray(),
             ],
 
-            // ============================================
-            // REPORT 5: Riwayat Transaksi Sparepart
-            // Relasi: UNION barang_masuk + barang_keluar → spareparts, users
-            // ============================================
             'riwayat-transaksi' => [
                 'title' => 'Riwayat Transaksi Sparepart',
                 'description' => 'Histori seluruh transaksi barang masuk dan keluar.',
-                'filters' => ['tanggal', 'tipe_transaksi'],
                 'headers' => ['Tanggal', 'Tipe', 'No Transaksi', 'Sparepart', 'Jumlah', 'User/Admin'],
                 'rows' => $this->getTransactionHistory(),
             ],
