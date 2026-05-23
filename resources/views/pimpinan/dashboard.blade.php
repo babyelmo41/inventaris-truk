@@ -65,7 +65,7 @@
                     <tr>
                         <td>{{ $report['date'] }}</td>
                         <td class="fw-semibold">{{ $report['name'] }}</td>
-                        <td><span class="badge {{ $report['status'] === 'Perlu Perhatian' ? 'text-bg-warning' : 'text-bg-success' }}">{{ $report['status'] }}</span></td>
+                        <td><span class="badge {{ $report['status'] === 'Perlu Perhatian' ? 'text-bg-warning' : ($report['status'] === 'Belum Ada Data' ? 'text-bg-secondary' : 'text-bg-success') }}">{{ $report['status'] }}</span></td>
                         <td class="text-end">
                             <a href="{{ route('reports.show', $report['type']) }}" class="btn btn-sm btn-outline-primary" title="Lihat Laporan">
                                 <i class="bi bi-eye"></i>
