@@ -30,6 +30,7 @@ class DashboardController extends Controller
                     return [
                         'date' => $masuk->date->format('d M Y'),
                         'time' => \Carbon\Carbon::parse($masuk->time)->format('H:i'),
+                        'datetime' => $masuk->date->format('Y-m-d') . ' ' . $masuk->time,
                         'code' => $masuk->invoice_no,
                         'item' => $masuk->details->first()?->sparepart?->name ?? '-',
                         'type' => 'Barang Masuk',
@@ -47,6 +48,7 @@ class DashboardController extends Controller
                             return [
                                 'date' => $keluar->date->format('d M Y'),
                                 'time' => \Carbon\Carbon::parse($keluar->time)->format('H:i'),
+                                'datetime' => $keluar->date->format('Y-m-d') . ' ' . $keluar->time,
                                 'code' => $keluar->reference_no,
                                 'item' => $keluar->details->first()?->sparepart?->name ?? '-',
                                 'type' => 'Barang Keluar',
@@ -55,7 +57,7 @@ class DashboardController extends Controller
                             ];
                         })
                 )
-                ->sortByDesc('time')
+                ->sortByDesc('datetime')
                 ->values()
                 ->toArray(),
         ]);

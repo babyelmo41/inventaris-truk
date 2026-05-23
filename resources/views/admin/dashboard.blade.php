@@ -36,7 +36,7 @@
     </div>
     <div class="col-xl-5">
         <div class="panel-card p-4 h-100">
-            <h2 class="h5 fw-bold mb-3">Aktivitas Transaksi Terbaru</h2>
+            <h2 class="h5 fw-bold mb-3">Aktivitas Terbaru</h2>
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">
