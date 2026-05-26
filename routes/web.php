@@ -78,4 +78,5 @@ Route::middleware('simple.auth')->group(function () {
 
     Route::get('/monitoring-stok', [InventoryController::class, 'stockMonitoring'])->name('stock.monitoring');
     Route::get('/laporan/{type}', [ReportController::class, 'show'])->name('reports.show');
+    Route::get('/laporan/{type}/pdf', [ReportController::class, 'pdf'])->name('reports.pdf');
 });

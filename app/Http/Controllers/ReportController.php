@@ -286,4 +286,32 @@ class ReportController extends Controller
             $row->user_name,
         ])->toArray();
     }
+
+    // ============================================
+    // PDF EXPORT
+    // ============================================
+    public function pdf(string $type, Request $request)
+    {
+        $reports = $this->reports($request);
+        abort_unless(array_key_exists($type, $reports), 404);
+
+        $report = $reports[$type];
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('reports.pdf', [
+            'title' => $report['title'],
+            'description' => $report['description'],
+            'headers' => $report['headers'],
+            'rows' => $report['rows'],
+            'filters' => [
+                'date' => $request->date,
+                'date_from' => $request->date_from,
+                'date_to' => $request->date_to,
+                'month' => $request->month,
+            ],
+        ])->setPaper('a4', 'landscape');
+
+        $filename = str_replace(' ', '-', strtolower($report['title'])) . '.pdf';
+
+        return $pdf->download($filename);
+    }
 }

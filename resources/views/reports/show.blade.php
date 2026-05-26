@@ -11,6 +11,7 @@
         <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
             <div class="d-flex gap-2 justify-content-lg-end">
                 <button onclick="window.print()" class="btn btn-light"><i class="bi bi-printer me-2"></i>Cetak</button>
+                <a href="{{ route('reports.pdf', array_merge(['type' => $type], request()->query())) }}" class="btn btn-danger"><i class="bi bi-file-earmark-pdf me-2"></i>Download PDF</a>
                 <a href="{{ url()->previous() }}" class="btn btn-outline-light"><i class="bi bi-arrow-left me-2"></i>Kembali</a>
             </div>
         </div>
