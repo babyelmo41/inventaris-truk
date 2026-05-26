@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\BarangKeluar;
 use App\Models\BarangMasuk;
 use App\Models\Sparepart;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
@@ -17,24 +18,34 @@ class ReportController extends Controller
         ]);
     }
 
-    public function show(string $type): View
+    public function show(string $type, Request $request): View
     {
-        $reports = $this->reports();
+        $reports = $this->reports($request);
         abort_unless(array_key_exists($type, $reports), 404);
 
+        $report = $reports[$type];
+
         return view('reports.show', [
-            'title' => $reports[$type]['title'],
-            'report' => $reports[$type],
+            'title' => $report['title'],
+            'report' => $report,
             'type' => $type,
+            'filterable' => $report['filterable'] ?? false,
+            'filters' => [
+                'date' => $request->date,
+                'date_from' => $request->date_from,
+                'date_to' => $request->date_to,
+                'month' => $request->month,
+            ],
         ]);
     }
 
-    private function reports(): array
+    private function reports(Request $request): array
     {
         return [
             'stok-sparepart' => [
                 'title' => 'Laporan Stok Sparepart',
                 'description' => 'Preview stok seluruh sparepart berdasarkan kategori dan supplier.',
+                'filterable' => false,
                 'headers' => ['Kode Barang', 'Nama Barang', 'Kategori', 'Supplier', 'Stok', 'Stok Minimum', 'Status'],
                 'rows' => Sparepart::select(
                         'spareparts.code',
@@ -47,10 +58,16 @@ class ReportController extends Controller
                             WHEN spareparts.stock <= 0 THEN 'Habis'
                             WHEN spareparts.stock <= spareparts.min_stock THEN 'Hampir Habis'
                             ELSE 'Aman'
-                        END as status")
+                        END as status"),
+                        DB::raw("CASE 
+                            WHEN spareparts.stock <= 0 THEN 1
+                            WHEN spareparts.stock <= spareparts.min_stock THEN 2
+                            ELSE 3
+                        END as status_order")
                     )
                     ->join('categories', 'spareparts.category_id', '=', 'categories.id')
                     ->join('suppliers', 'spareparts.supplier_id', '=', 'suppliers.id')
+                    ->orderBy('status_order')
                     ->get()
                     ->map(fn ($row) => [
                         $row->code,
@@ -67,61 +84,23 @@ class ReportController extends Controller
             'barang-masuk' => [
                 'title' => 'Laporan Barang Masuk',
                 'description' => 'Preview transaksi barang masuk berdasarkan periode dan supplier.',
+                'filterable' => true,
                 'headers' => ['Tanggal', 'No Transaksi', 'Supplier', 'Sparepart', 'Jumlah', 'Total'],
-                'rows' => BarangMasuk::select(
-                        'barang_masuk.date',
-                        'barang_masuk.invoice_no',
-                        'suppliers.name as supplier_name',
-                        'spareparts.name as sparepart_name',
-                        'detail_barang_masuk.quantity',
-                        DB::raw('detail_barang_masuk.quantity * detail_barang_masuk.price as total')
-                    )
-                    ->join('suppliers', 'barang_masuk.supplier_id', '=', 'suppliers.id')
-                    ->join('detail_barang_masuk', 'barang_masuk.id', '=', 'detail_barang_masuk.barang_masuk_id')
-                    ->join('spareparts', 'detail_barang_masuk.sparepart_id', '=', 'spareparts.id')
-                    ->orderBy('barang_masuk.date', 'desc')
-                    ->get()
-                    ->map(fn ($row) => [
-                        \Carbon\Carbon::parse($row->date)->format('d M Y'),
-                        $row->invoice_no,
-                        $row->supplier_name,
-                        $row->sparepart_name,
-                        $row->quantity,
-                        'Rp ' . number_format($row->total, 0, ',', '.'),
-                    ])
-                    ->toArray(),
+                'rows' => $this->getBarangMasukRows($request),
             ],
 
             'barang-keluar' => [
                 'title' => 'Laporan Barang Keluar',
                 'description' => 'Preview transaksi barang keluar berdasarkan periode dan tujuan penggunaan.',
+                'filterable' => true,
                 'headers' => ['Tanggal', 'No Transaksi', 'Tujuan', 'Sparepart', 'Jumlah Keluar', 'Keterangan'],
-                'rows' => BarangKeluar::select(
-                        'barang_keluar.date',
-                        'barang_keluar.reference_no',
-                        'barang_keluar.purpose',
-                        'spareparts.name as sparepart_name',
-                        'detail_barang_keluar.quantity',
-                        'barang_keluar.notes'
-                    )
-                    ->join('detail_barang_keluar', 'barang_keluar.id', '=', 'detail_barang_keluar.barang_keluar_id')
-                    ->join('spareparts', 'detail_barang_keluar.sparepart_id', '=', 'spareparts.id')
-                    ->orderBy('barang_keluar.date', 'desc')
-                    ->get()
-                    ->map(fn ($row) => [
-                        \Carbon\Carbon::parse($row->date)->format('d M Y'),
-                        $row->reference_no,
-                        $row->purpose,
-                        $row->sparepart_name,
-                        $row->quantity,
-                        $row->notes ?? '-',
-                    ])
-                    ->toArray(),
+                'rows' => $this->getBarangKeluarRows($request),
             ],
 
             'stok-minimum' => [
                 'title' => 'Laporan Stok Minimum',
                 'description' => 'Sparepart yang stoknya sudah mencapai atau di bawah batas minimum.',
+                'filterable' => false,
                 'headers' => ['Kode Barang', 'Nama Barang', 'Kategori', 'Supplier', 'Stok Tersisa', 'Stok Minimum', 'Status'],
                 'rows' => Sparepart::select(
                         'spareparts.code',
@@ -133,11 +112,16 @@ class ReportController extends Controller
                         DB::raw("CASE 
                             WHEN spareparts.stock <= 0 THEN 'Habis'
                             WHEN spareparts.stock <= spareparts.min_stock THEN 'Hampir Habis'
-                        END as status")
+                        END as status"),
+                        DB::raw("CASE 
+                            WHEN spareparts.stock <= 0 THEN 1
+                            ELSE 2
+                        END as status_order")
                     )
                     ->join('categories', 'spareparts.category_id', '=', 'categories.id')
                     ->join('suppliers', 'spareparts.supplier_id', '=', 'suppliers.id')
                     ->whereColumn('spareparts.stock', '<=', 'spareparts.min_stock')
+                    ->orderBy('status_order')
                     ->get()
                     ->map(fn ($row) => [
                         $row->code,
@@ -154,15 +138,97 @@ class ReportController extends Controller
             'riwayat-transaksi' => [
                 'title' => 'Riwayat Transaksi Sparepart',
                 'description' => 'Histori seluruh transaksi barang masuk dan keluar.',
+                'filterable' => true,
                 'headers' => ['Tanggal', 'Tipe', 'No Transaksi', 'Sparepart', 'Jumlah', 'User/Admin'],
-                'rows' => $this->getTransactionHistory(),
+                'rows' => $this->getTransactionHistory($request),
             ],
         ];
     }
 
-    private function getTransactionHistory(): array
+    // ============================================
+    // FILTER LOGIC
+    // ============================================
+
+    private function applyDateFilter($query, Request $request, string $dateColumn = 'date')
     {
-        // Query barang masuk dengan JOIN
+        // Filter: tanggal tertentu
+        if ($request->filled('date')) {
+            return $query->whereDate($dateColumn, $request->date);
+        }
+
+        // Filter: rentang tanggal
+        if ($request->filled('date_from') && $request->filled('date_to')) {
+            return $query->whereBetween($dateColumn, [$request->date_from, $request->date_to]);
+        }
+
+        // Filter: bulan tertentu (format: YYYY-MM)
+        if ($request->filled('month')) {
+            $year = substr($request->month, 0, 4);
+            $month = substr($request->month, 5, 2);
+            return $query->whereYear($dateColumn, $year)
+                         ->whereMonth($dateColumn, $month);
+        }
+
+        // Default: bulan ini
+        return $query->whereYear($dateColumn, now()->year)
+                     ->whereMonth($dateColumn, now()->month);
+    }
+
+    private function getBarangMasukRows(Request $request): array
+    {
+        return BarangMasuk::select(
+                'barang_masuk.date',
+                'barang_masuk.invoice_no',
+                'suppliers.name as supplier_name',
+                'spareparts.name as sparepart_name',
+                'detail_barang_masuk.quantity',
+                DB::raw('detail_barang_masuk.quantity * detail_barang_masuk.price as total')
+            )
+            ->join('suppliers', 'barang_masuk.supplier_id', '=', 'suppliers.id')
+            ->join('detail_barang_masuk', 'barang_masuk.id', '=', 'detail_barang_masuk.barang_masuk_id')
+            ->join('spareparts', 'detail_barang_masuk.sparepart_id', '=', 'spareparts.id')
+            ->tap(fn ($q) => $this->applyDateFilter($q, $request, 'barang_masuk.date'))
+            ->orderBy('barang_masuk.date', 'desc')
+            ->get()
+            ->map(fn ($row) => [
+                \Carbon\Carbon::parse($row->date)->format('d M Y'),
+                $row->invoice_no,
+                $row->supplier_name,
+                $row->sparepart_name,
+                $row->quantity,
+                'Rp ' . number_format($row->total, 0, ',', '.'),
+            ])
+            ->toArray();
+    }
+
+    private function getBarangKeluarRows(Request $request): array
+    {
+        return BarangKeluar::select(
+                'barang_keluar.date',
+                'barang_keluar.reference_no',
+                'barang_keluar.purpose',
+                'spareparts.name as sparepart_name',
+                'detail_barang_keluar.quantity',
+                'barang_keluar.notes'
+            )
+            ->join('detail_barang_keluar', 'barang_keluar.id', '=', 'detail_barang_keluar.barang_keluar_id')
+            ->join('spareparts', 'detail_barang_keluar.sparepart_id', '=', 'spareparts.id')
+            ->tap(fn ($q) => $this->applyDateFilter($q, $request, 'barang_keluar.date'))
+            ->orderBy('barang_keluar.date', 'desc')
+            ->get()
+            ->map(fn ($row) => [
+                \Carbon\Carbon::parse($row->date)->format('d M Y'),
+                $row->reference_no,
+                $row->purpose,
+                $row->sparepart_name,
+                $row->quantity,
+                $row->notes ?? '-',
+            ])
+            ->toArray();
+    }
+
+    private function getTransactionHistory(Request $request): array
+    {
         $masuk = BarangMasuk::select(
                 'barang_masuk.date',
                 DB::raw("'Barang Masuk' as tipe"),
@@ -175,7 +241,6 @@ class ReportController extends Controller
             ->join('spareparts', 'detail_barang_masuk.sparepart_id', '=', 'spareparts.id')
             ->join('users', 'barang_masuk.user_id', '=', 'users.id');
 
-        // Query barang keluar dengan JOIN, lalu UNION dengan barang masuk
         $keluar = BarangKeluar::select(
                 'barang_keluar.date',
                 DB::raw("'Barang Keluar' as tipe"),
@@ -188,7 +253,24 @@ class ReportController extends Controller
             ->join('spareparts', 'detail_barang_keluar.sparepart_id', '=', 'spareparts.id')
             ->join('users', 'barang_keluar.user_id', '=', 'users.id');
 
-        // UNION kedua query, urutkan berdasarkan tanggal terbaru
+        // Apply date filter to both subqueries
+        if ($request->filled('date')) {
+            $masuk->whereDate('barang_masuk.date', $request->date);
+            $keluar->whereDate('barang_keluar.date', $request->date);
+        } elseif ($request->filled('date_from') && $request->filled('date_to')) {
+            $masuk->whereBetween('barang_masuk.date', [$request->date_from, $request->date_to]);
+            $keluar->whereBetween('barang_keluar.date', [$request->date_from, $request->date_to]);
+        } elseif ($request->filled('month')) {
+            $year = substr($request->month, 0, 4);
+            $month = substr($request->month, 5, 2);
+            $masuk->whereYear('barang_masuk.date', $year)->whereMonth('barang_masuk.date', $month);
+            $keluar->whereYear('barang_keluar.date', $year)->whereMonth('barang_keluar.date', $month);
+        } else {
+            // Default: bulan ini
+            $masuk->whereYear('barang_masuk.date', now()->year)->whereMonth('barang_masuk.date', now()->month);
+            $keluar->whereYear('barang_keluar.date', now()->year)->whereMonth('barang_keluar.date', now()->month);
+        }
+
         $transactions = $masuk->unionAll($keluar)
             ->orderBy('date', 'desc')
             ->get();

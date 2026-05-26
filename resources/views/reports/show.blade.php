@@ -1,132 +1,258 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="panel-card p-4">
-    <div class="d-flex flex-wrap gap-3 align-items-center justify-content-between mb-4">
-        <div>
-            <h2 class="h5 fw-bold mb-1">{{ $report['title'] }}</h2>
-            <div class="text-secondary">{{ $report['description'] }}</div>
+{{-- Dark Header --}}
+<div class="report-header mb-4">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <h1 class="h3 fw-bold text-white mb-2">{{ $report['title'] }}</h1>
+            <p class="text-white-50 mb-0">{{ $report['description'] }}</p>
         </div>
-        <div class="d-flex gap-2">
-            <button onclick="window.print()" class="btn btn-outline-primary"><i class="bi bi-printer me-2"></i>Cetak</button>
-            <a href="{{ url()->previous() }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i>Kembali</a>
+        <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+            <div class="d-flex gap-2 justify-content-lg-end">
+                <button onclick="window.print()" class="btn btn-light"><i class="bi bi-printer me-2"></i>Cetak</button>
+                <a href="{{ url()->previous() }}" class="btn btn-outline-light"><i class="bi bi-arrow-left me-2"></i>Kembali</a>
+            </div>
         </div>
     </div>
+</div>
 
-    {{-- Tabel Report --}}
-    <div class="table-responsive">
-        <table class="table table-hover table-striped mb-0" id="report-table">
-            <thead class="table-dark">
-                <tr>
-                    <th>No</th>
-                    @foreach($report['headers'] as $header)
-                        <th>{{ $header }}</th>
-                    @endforeach
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($report['rows'] as $row)
+{{-- Filter Card --}}
+@if($filterable)
+<div class="report-card mb-4">
+    <div class="report-card-header">
+        <h6 class="mb-0 fw-bold"><i class="bi bi-funnel me-2"></i>Filter Laporan</h6>
+    </div>
+    <div class="report-card-body">
+        <form method="GET">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold text-muted small">Tanggal Tertentu</label>
+                    <input type="date" name="date" class="form-control form-control-lg" value="{{ $filters['date'] ?? '' }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold text-muted small">Dari Tanggal</label>
+                    <input type="date" name="date_from" class="form-control form-control-lg" value="{{ $filters['date_from'] ?? '' }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold text-muted small">Sampai Tanggal</label>
+                    <input type="date" name="date_to" class="form-control form-control-lg" value="{{ $filters['date_to'] ?? '' }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-semibold text-muted small">Bulan</label>
+                    <input type="month" name="month" class="form-control form-control-lg" value="{{ $filters['month'] ?? '' }}">
+                </div>
+                <div class="col-md-3">
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg flex-grow-1"><i class="bi bi-search me-1"></i>Filter</button>
+                        <a href="{{ route('reports.show', $type) }}" class="btn btn-outline-secondary btn-lg">Reset</a>
+                    </div>
+                </div>
+            </div>
+            <div class="form-text mt-2"><i class="bi bi-info-circle me-1"></i>Kosongkan semua filter untuk menampilkan data bulan ini (default).</div>
+        </form>
+    </div>
+</div>
+@endif
+
+{{-- Data Card --}}
+<div class="report-card">
+    <div class="report-card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-bold"><i class="bi bi-table me-2"></i>Data Laporan</h6>
+        <span class="badge bg-white text-dark fw-semibold">{{ count($report['rows']) }} data</span>
+    </div>
+    <div class="report-card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" id="report-table">
+                <thead>
                     <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        @foreach($row as $cell)
-                            <td>
-                                {{-- Badge khusus untuk kolom Status --}}
-                                @if($cell === 'Aman')
-                                    <span class="badge bg-success">{{ $cell }}</span>
-                                @elseif($cell === 'Hampir Habis')
-                                    <span class="badge bg-warning text-dark">{{ $cell }}</span>
-                                @elseif($cell === 'Habis')
-                                    <span class="badge bg-danger">{{ $cell }}</span>
-                                @else
-                                    {{ $cell }}
-                                @endif
-                            </td>
+                        <th class="ps-4" style="width: 50px;">No</th>
+                        @foreach($report['headers'] as $header)
+                            <th>{{ $header }}</th>
                         @endforeach
                     </tr>
-                @empty
-                    <tr>
-                        <td colspan="{{ count($report['headers']) + 1 }}" class="text-center text-secondary py-4">
-                            Tidak ada data untuk ditampilkan.
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-            <tfoot class="table-light">
-                <tr>
-                    <td colspan="{{ count($report['headers']) + 1 }}" class="text-end fw-semibold">
-                        Total: {{ count($report['rows']) }} data
-                    </td>
-                </tr>
-            </tfoot>
-        </table>
+                </thead>
+                <tbody>
+                    @forelse($report['rows'] as $row)
+                        <tr>
+                            <td class="ps-4 text-muted">{{ $loop->iteration }}</td>
+                            @foreach($row as $cell)
+                                <td>
+                                    @if($cell === 'Aman')
+                                        <span class="badge rounded-pill bg-success-subtle text-success fw-semibold"><i class="bi bi-check-circle me-1"></i>{{ $cell }}</span>
+                                    @elseif($cell === 'Hampir Habis')
+                                        <span class="badge rounded-pill bg-warning-subtle text-warning fw-semibold"><i class="bi bi-exclamation-triangle me-1"></i>{{ $cell }}</span>
+                                    @elseif($cell === 'Habis')
+                                        <span class="badge rounded-pill bg-danger-subtle text-danger fw-semibold"><i class="bi bi-x-circle me-1"></i>{{ $cell }}</span>
+                                    @else
+                                        {{ $cell }}
+                                    @endif
+                                </td>
+                            @endforeach
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="{{ count($report['headers']) + 1 }}" class="text-center text-muted py-5">
+                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                Tidak ada data untuk ditampilkan.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="report-card-footer text-muted">
+        <i class="bi bi-file-earmark-text me-1"></i>
+        Menampilkan {{ count($report['rows']) }} data | PT. Chakra Jawara Kabupaten Banjar
     </div>
 </div>
 
 <style>
-    @media print {
-        /* Sembunyikan elemen UI */
-        .sidebar, .topbar, .btn, .navbar { display: none !important; }
+    /* Dark Header */
+    .report-header {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .report-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+    .report-header::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        right: 10%;
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+    }
 
-        /* Layout full width */
+    /* Card Style */
+    .report-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+        overflow: hidden;
+    }
+    .report-card-header {
+        background: #f8fafc;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .report-card-body {
+        padding: 1.5rem;
+    }
+    .report-card-footer {
+        background: #f8fafc;
+        padding: 0.75rem 1.5rem;
+        border-top: 1px solid #e2e8f0;
+        font-size: 0.85rem;
+    }
+
+    /* Table Header */
+    .report-card table thead tr {
+        background: #f1f5f9;
+    }
+    .report-card table thead th {
+        font-weight: 600;
+        color: #475569;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 0.85rem 1rem;
+        border-bottom: 2px solid #e2e8f0;
+    }
+
+    /* Table Body */
+    .report-card table tbody td {
+        padding: 0.8rem 1rem;
+        color: #334155;
+        font-size: 0.9rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .report-card table tbody tr:hover {
+        background: #f8fafc;
+    }
+
+    /* Badge Rounded Pill */
+    .badge.rounded-pill {
+        padding: 0.4em 0.8em;
+        font-size: 0.78rem;
+    }
+    .bg-success-subtle { background-color: #dcfce7 !important; }
+    .text-success { color: #16a34a !important; }
+    .bg-warning-subtle { background-color: #fef9c3 !important; }
+    .text-warning { color: #ca8a04 !important; }
+    .bg-danger-subtle { background-color: #fee2e2 !important; }
+    .text-danger { color: #dc2626 !important; }
+
+    /* Form Control */
+    .form-control-lg {
+        border-radius: 10px;
+        border-color: #e2e8f0;
+    }
+    .form-control-lg:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+
+    /* Print Styles */
+    @media print {
+        .sidebar, .topbar, .btn, .navbar { display: none !important; }
         .main-area { margin-left: 0 !important; padding: 0 !important; }
         .content-wrap { padding: 0 !important; }
-        .panel-card { box-shadow: none !important; border: none !important; padding: 0 !important; }
+        .report-header {
+            background: #1e293b !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+            border-radius: 0;
+            padding: 1rem;
+        }
+        .report-card { box-shadow: none !important; border: 1px solid #ddd; border-radius: 8px; }
+        .report-card-header { background: #f8fafc !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
-        /* Orientasi landscape untuk tabel lebar */
         @page {
             size: landscape;
-            margin: 1.5cm;
+            margin: 1cm;
         }
 
-        /* Header cetak */
         body::before {
             content: "PT. Chakra Jawara - {{ $report['title'] }}";
             display: block;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
             text-align: center;
-            margin-bottom: 10px;
-            padding-bottom: 10px;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
             border-bottom: 2px solid #333;
         }
 
-        /* Tabel */
         table {
-            font-size: 11px !important;
+            font-size: 10px !important;
             width: 100% !important;
         }
-
         th, td {
             padding: 4px 8px !important;
             border: 1px solid #ddd !important;
         }
-
-        thead {
-            background-color: #f0f0f0 !important;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-        }
-
-        /* Badge tetap terlihat */
         .badge {
             border: 1px solid currentColor;
             padding: 2px 6px;
-            font-size: 10px;
+            font-size: 9px;
         }
-
-        /* Footer info */
-        tfoot {
-            font-weight: bold;
-        }
-
-        /* Page break yang rapi */
-        tr {
-            page-break-inside: avoid;
-        }
-
-        thead {
-            display: table-header-group;
-        }
+        tr { page-break-inside: avoid; }
+        thead { display: table-header-group; }
     }
 </style>
 @endsection

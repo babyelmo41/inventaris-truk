@@ -137,21 +137,186 @@
             border-radius: 8px;
         }
 
+        /* ============================================
+           GLOBAL: Dark Header, Card, Table Styles
+           ============================================ */
+
+        /* Dark Header */
+        .page-header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 16px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .page-header::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            right: 10%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        /* Modern Card */
+        .modern-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+            overflow: hidden;
+        }
+        .modern-card-header {
+            background: #f8fafc;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .modern-card-body {
+            padding: 1.5rem;
+        }
+        .modern-card-footer {
+            background: #f8fafc;
+            padding: 0.75rem 1.5rem;
+            border-top: 1px solid #e2e8f0;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        /* Modern Table inside card */
+        .modern-card table thead tr {
+            background: #f1f5f9;
+        }
+        .modern-card table thead th {
+            font-weight: 600;
+            color: #475569;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0.85rem 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .modern-card table tbody td {
+            padding: 0.8rem 1rem;
+            color: #334155;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .modern-card table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        /* Badge Status Pills */
+        .badge-status {
+            padding: 0.4em 0.8em;
+            font-size: 0.78rem;
+            border-radius: 50px;
+            font-weight: 600;
+        }
+        .badge-status.aman {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+        .badge-status.hampir-habis {
+            background: #fef9c3;
+            color: #ca8a04;
+        }
+        .badge-status.habis {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        /* Report Icon */
+        .report-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        /* Mobile sidebar overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .5);
+            z-index: 1035;
+            opacity: 0;
+            transition: opacity .3s ease;
+        }
+
+        .sidebar-overlay.show {
+            display: block;
+            opacity: 1;
+        }
+
         @media (max-width: 991.98px) {
             .sidebar {
-                position: static;
-                width: 100%;
-                min-height: auto;
+                position: fixed;
+                left: -280px;
+                top: 0;
+                width: 276px;
+                min-height: 100vh;
+                transition: left .3s ease;
+                z-index: 1040;
+            }
+
+            .sidebar.open {
+                left: 0;
             }
 
             .main-area {
                 margin-left: 0;
+            }
+
+            .content-wrap {
+                padding: 1rem .75rem;
+            }
+
+            .topbar {
+                min-height: 56px;
+                padding: .5rem .75rem !important;
+            }
+
+            .topbar h1.h4 {
+                font-size: 1.1rem;
+            }
+
+            .topbar .text-uppercase.small {
+                font-size: .7rem;
+            }
+
+            /* Responsive tables */
+            .table-responsive-custom {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .table-responsive-custom .btn-sm {
+                font-size: .75rem;
+                padding: .25rem .5rem;
             }
         }
     </style>
 </head>
 <body>
 <div class="app-shell">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
     @if(($user['role'] ?? null) === 'pimpinan')
         @include('layouts.sidebar-pimpinan')
     @else
@@ -166,6 +331,40 @@
     </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Mobile sidebar toggle
+const sidebar = document.querySelector('.sidebar');
+const overlay = document.getElementById('sidebarOverlay');
+const toggleBtn = document.getElementById('sidebarToggle');
+
+function openSidebar() {
+    sidebar.classList.add('open');
+    overlay.classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeSidebar() {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('show');
+    document.body.style.overflow = '';
+}
+
+if (toggleBtn) {
+    toggleBtn.addEventListener('click', () => {
+        sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+    });
+}
+if (overlay) {
+    overlay.addEventListener('click', closeSidebar);
+}
+
+// Close sidebar on nav link click (mobile)
+document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+    link.addEventListener('click', () => {
+        if (window.innerWidth < 992) closeSidebar();
+    });
+});
+</script>
 <script>
 // Hover effect untuk tabel dengan rowspan (Barang Masuk/Keluar)
 document.addEventListener('DOMContentLoaded', function() {
