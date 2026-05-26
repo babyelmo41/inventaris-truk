@@ -3,40 +3,107 @@
 namespace Database\Seeders;
 
 use App\Models\BarangKeluar;
+use App\Models\DetailBarangKeluar;
+use App\Models\Sparepart;
 use Illuminate\Database\Seeder;
 
 class BarangKeluarSeeder extends Seeder
 {
     public function run(): void
     {
-        $transactions = [
-            // Data awal (4)
-            ['reference_no' => 'OUT-2026-0523-001', 'date' => '2026-05-23', 'time' => '10:00', 'purpose' => 'Perawatan Truk DT-014', 'user_id' => 1, 'notes' => 'Penggantian rutin filter dan kampas rem'],
-            ['reference_no' => 'OUT-2026-0522-002', 'date' => '2026-05-22', 'time' => '11:30', 'purpose' => 'Perbaikan Truk DT-008', 'user_id' => 1, 'notes' => 'Ganti lampu dan perbaiki suspensi'],
-            ['reference_no' => 'OUT-2026-0521-003', 'date' => '2026-05-21', 'time' => '13:45', 'purpose' => 'Perawatan Berkala Truk DT-021', 'user_id' => 3, 'notes' => 'Service rutin 10.000 km'],
-            ['reference_no' => 'OUT-2026-0520-004', 'date' => '2026-05-20', 'time' => '15:20', 'purpose' => 'Penggantian Ban Truk DT-005', 'user_id' => 1, 'notes' => 'Ban aus, perlu diganti'],
+        BarangKeluar::truncate();
+        DetailBarangKeluar::truncate();
 
-            // Tambah: 20-30 Mei 2026 (18 transaksi)
-            ['reference_no' => 'OUT-2026-0530-005', 'date' => '2026-05-30', 'time' => '08:45', 'purpose' => 'Perawatan Truk DT-002', 'user_id' => 1, 'notes' => 'Ganti filter oli dan solar'],
-            ['reference_no' => 'OUT-2026-0529-006', 'date' => '2026-05-29', 'time' => '10:15', 'purpose' => 'Perbaikan Truk DT-011', 'user_id' => 3, 'notes' => 'Kampas rem aus, ganti baru'],
-            ['reference_no' => 'OUT-2026-0529-007', 'date' => '2026-05-29', 'time' => '14:30', 'purpose' => 'Perawatan Truk DT-017', 'user_id' => 1, 'notes' => 'Service rutin penggantian filter'],
-            ['reference_no' => 'OUT-2026-0528-008', 'date' => '2026-05-28', 'time' => '09:00', 'purpose' => 'Perbaikan Truk DT-003', 'user_id' => 1, 'notes' => 'Ganti lampu headlamp pecah'],
-            ['reference_no' => 'OUT-2026-0527-009', 'date' => '2026-05-27', 'time' => '11:45', 'purpose' => 'Penggantian Ban Truk DT-009', 'user_id' => 3, 'notes' => 'Ban bocor, ganti ban cadangan'],
-            ['reference_no' => 'OUT-2026-0526-010', 'date' => '2026-05-26', 'time' => '13:00', 'purpose' => 'Perawatan Truk DT-015', 'user_id' => 1, 'notes' => 'Ganti filter udara dan seal'],
-            ['reference_no' => 'OUT-2026-0525-011', 'date' => '2026-05-25', 'time' => '15:30', 'purpose' => 'Perbaikan Truk DT-006', 'user_id' => 1, 'notes' => 'Shockbreaker bocor, perlu ganti'],
-            ['reference_no' => 'OUT-2026-0524-012', 'date' => '2026-05-24', 'time' => '08:30', 'purpose' => 'Perawatan Berkala Truk DT-020', 'user_id' => 3, 'notes' => 'Service 20.000 km'],
-            ['reference_no' => 'OUT-2026-0523-013', 'date' => '2026-05-23', 'time' => '16:00', 'purpose' => 'Perbaikan Truk DT-012', 'user_id' => 1, 'notes' => 'Aki soak, ganti baru'],
-            ['reference_no' => 'OUT-2026-0522-014', 'date' => '2026-05-22', 'time' => '09:15', 'purpose' => 'Penggantian Velg Truk DT-007', 'user_id' => 1, 'notes' => 'Velg retak, ganti untuk keselamatan'],
-            ['reference_no' => 'OUT-2026-0520-015', 'date' => '2026-05-20', 'time' => '12:00', 'purpose' => 'Perawatan Truk DT-019', 'user_id' => 3, 'notes' => 'Ganti bohlam sen dan rem'],
-            ['reference_no' => 'OUT-2026-0518-016', 'date' => '2026-05-18', 'time' => '10:30', 'purpose' => 'Perbaikan Truk DT-004', 'user_id' => 1, 'notes' => 'Bushings aus, ganti baru'],
-            ['reference_no' => 'OUT-2026-0516-017', 'date' => '2026-05-16', 'time' => '14:00', 'purpose' => 'Perawatan Truk DT-010', 'user_id' => 1, 'notes' => 'Penggantian kampas rem belakang'],
-            ['reference_no' => 'OUT-2026-0514-018', 'date' => '2026-05-14', 'time' => '08:00', 'purpose' => 'Perbaikan Truk DT-016', 'user_id' => 3, 'notes' => 'Ganti filter solar dan oli'],
-            ['reference_no' => 'OUT-2026-0512-019', 'date' => '2026-05-12', 'time' => '11:00', 'purpose' => 'Penggantian Ban Truk DT-013', 'user_id' => 1, 'notes' => 'Ban aus karena perjalanan jauh'],
-            ['reference_no' => 'OUT-2026-0510-020', 'date' => '2026-05-10', 'time' => '15:45', 'purpose' => 'Perawatan Berkala Truk DT-018', 'user_id' => 1, 'notes' => 'Service rutin 5.000 km'],
+        $spareparts = Sparepart::all();
+        $userIds = [1, 3];
+
+        $purposes = [
+            'Perawatan Truk DT-{:d}',
+            'Perbaikan Truk DT-{:d}',
+            'Perawatan Berkala Truk DT-{:d}',
+            'Penggantian Ban Truk DT-{:d}',
+            'Service Rutin Truk DT-{:d}',
+            'Perbaikan Mendesak Truk DT-{:d}',
+            'Inspeksi & Ganti Truk DT-{:d}',
         ];
 
-        foreach ($transactions as $transaction) {
-            BarangKeluar::create($transaction);
+        $notesList = [
+            'Penggantian rutin filter dan kampas rem',
+            'Ganti lampu dan perbaiki suspensi',
+            'Service rutin 10.000 km',
+            'Ban aus, perlu diganti',
+            'Kampas rem aus, ganti baru',
+            'Ganti filter oli dan solar',
+            'Lampu headlamp pecah',
+            'Shockbreaker bocor, perlu ganti',
+            'Aki soak, ganti baru',
+            'Bushing aus, ganti baru',
+            'Service 20.000 km',
+            'Velg retak, ganti untuk keselamatan',
+            'Ban bocor, ganti ban cadangan',
+            'Penggantian kampas rem belakang',
+            'Ganti bohlam sen dan rem',
+            'Service 5.000 km',
+            'Ganti seal klep bocor',
+            'Perbaikan sistem kelistrikan',
+            'Ganti bearing roda',
+            'Penggantian filter udara kotor',
+        ];
+
+        $counter = 0;
+        $months = 6;
+
+        for ($m = $months - 1; $m >= 0; $m--) {
+            $monthStart = now()->subMonths($m)->startOfMonth();
+            $daysInMonth = $monthStart->daysInMonth;
+            $txCount = rand(3, 4);
+
+            for ($i = 0; $i < $txCount; $i++) {
+                $counter++;
+                $day = rand(1, min(28, $daysInMonth));
+                $date = $monthStart->copy()->addDays($day - 1);
+                $userId = $userIds[array_rand($userIds)];
+                $hour = str_pad(rand(8, 16), 2, '0', STR_PAD_LEFT);
+                $minute = str_pad(rand(0, 59), 2, '0', STR_PAD_LEFT);
+
+                $truckNum = str_pad(rand(1, 25), 3, '0', STR_PAD_LEFT);
+                $purpose = str_replace('{:d}', $truckNum, $purposes[array_rand($purposes)]);
+                $note = $notesList[array_rand($notesList)];
+
+                $barangKeluar = BarangKeluar::create([
+                    'reference_no' => 'OUT-' . $date->format('Ymd') . '-' . str_pad($counter, 3, '0', STR_PAD_LEFT),
+                    'date' => $date->toDateString(),
+                    'time' => $hour . ':' . $minute,
+                    'purpose' => $purpose,
+                    'user_id' => $userId,
+                    'notes' => $note,
+                ]);
+
+                // 2-3 detail items per transaction
+                $detailCount = rand(2, 3);
+                $pickedIds = [];
+                for ($j = 0; $j < $detailCount; $j++) {
+                    do {
+                        $sp = $spareparts->random();
+                    } while (in_array($sp->id, $pickedIds) && count($pickedIds) < $spareparts->count());
+                    $pickedIds[] = $sp->id;
+
+                    $qty = match (true) {
+                        in_array($sp->id, [13, 15]) => rand(2, 6),     // ban, velg — low
+                        in_array($sp->id, [11, 16, 17]) => rand(1, 3), // aki, shockbreaker — very low
+                        in_array($sp->id, [12, 14]) => rand(4, 20),     // bohlam, baut — high
+                        default => rand(1, 4),
+                    };
+
+                    DetailBarangKeluar::create([
+                        'barang_keluar_id' => $barangKeluar->id,
+                        'sparepart_id' => $sp->id,
+                        'quantity' => $qty,
+                    ]);
+                }
+            }
         }
+
+        $this->command?->info("✓ {$counter} transaksi Barang Keluar + detail (6 bulan terakhir)");
     }
 }
