@@ -10,8 +10,10 @@
         </div>
         <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
             <div class="d-flex gap-2 justify-content-lg-end position-relative" style="z-index:1">
+                @if(count($report['rows']) > 0)
                 <button onclick="window.print()" class="btn btn-light"><i class="bi bi-printer me-2"></i>Cetak</button>
                 <a href="{{ route('reports.pdf', array_merge(['type' => $type], request()->query())) }}" class="btn btn-danger"><i class="bi bi-file-earmark-pdf me-2"></i>Download PDF</a>
+                @endif
                 <a href="{{ url()->previous() }}" class="btn btn-outline-light"><i class="bi bi-arrow-left me-2"></i>Kembali</a>
             </div>
         </div>
@@ -25,23 +27,36 @@
         <h6 class="mb-0 fw-bold"><i class="bi bi-funnel me-2"></i>Filter Laporan</h6>
     </div>
     <div class="report-card-body">
-        <form method="GET">
+        <form method="GET" id="filterForm">
             <div class="row g-3 align-items-end">
                 <div class="col-md-3">
-                    <label class="form-label fw-semibold text-muted small">Tanggal Tertentu</label>
-                    <input type="date" name="date" class="form-control form-control-lg" value="{{ $filters['date'] ?? '' }}">
+                    <label class="form-label fw-semibold text-muted small">Period</label>
+                    <select id="periodSelect" class="form-select form-select-lg">
+                        <option value="" {{ !request()->has('date') && !request()->has('date_from') && !request()->has('month') ? 'selected' : '' }}>-- Pilih Period --</option>
+                        <option value="today" {{ request()->has('date') && request()->date === now()->toDateString() ? 'selected' : '' }}>Hari Ini</option>
+                        <option value="yesterday" {{ request()->has('date') && request()->date === now()->subDay()->toDateString() ? 'selected' : '' }}>Kemarin</option>
+                        <option value="this_week" {{ request()->has('month') ? '' : '' }}>Pekan Ini</option>
+                        <option value="last_week">Pekan Lalu</option>
+                        <option value="this_month" {{ request()->has('month') && request()->month === now()->format('Y-m') ? 'selected' : '' }}>Bulan Ini</option>
+                        <option value="last_month" {{ request()->has('month') && request()->month === now()->subMonth()->format('Y-m') ? 'selected' : '' }}>Bulan Lalu</option>
+                        <option value="custom" {{ request()->has('date_from') || (request()->has('date') && request()->date !== now()->toDateString() && request()->date !== now()->subDay()->toDateString()) ? 'selected' : '' }}>Rentang Kustom</option>
+                    </select>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-2" id="dateSingleWrap" style="display:none">
+                    <label class="form-label fw-semibold text-muted small">Tanggal</label>
+                    <input type="date" name="date" id="dateSingle" class="form-control form-control-lg" value="{{ $filters['date'] ?? '' }}">
+                </div>
+                <div class="col-md-2" id="dateFromWrap" style="display:none">
                     <label class="form-label fw-semibold text-muted small">Dari Tanggal</label>
-                    <input type="date" name="date_from" class="form-control form-control-lg" value="{{ $filters['date_from'] ?? '' }}">
+                    <input type="date" name="date_from" id="dateFrom" class="form-control form-control-lg" value="{{ $filters['date_from'] ?? '' }}">
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-2" id="dateToWrap" style="display:none">
                     <label class="form-label fw-semibold text-muted small">Sampai Tanggal</label>
-                    <input type="date" name="date_to" class="form-control form-control-lg" value="{{ $filters['date_to'] ?? '' }}">
+                    <input type="date" name="date_to" id="dateTo" class="form-control form-control-lg" value="{{ $filters['date_to'] ?? '' }}">
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-2" id="monthWrap" style="display:none">
                     <label class="form-label fw-semibold text-muted small">Bulan</label>
-                    <input type="month" name="month" class="form-control form-control-lg" value="{{ $filters['month'] ?? '' }}">
+                    <input type="month" name="month" id="monthInput" class="form-control form-control-lg" value="{{ $filters['month'] ?? '' }}">
                 </div>
                 <div class="col-md-3">
                     <div class="d-flex gap-2">
@@ -50,7 +65,6 @@
                     </div>
                 </div>
             </div>
-            <div class="form-text mt-2"><i class="bi bi-info-circle me-1"></i>Pilih rentang waktu terlebih dahulu untuk menampilkan data laporan.</div>
         </form>
     </div>
 </div>
@@ -59,9 +73,12 @@
 {{-- Data Card --}}
 <div class="report-card">
     <div class="report-card-header d-flex justify-content-between align-items-center">
-        <h6 class="mb-0 fw-bold"><i class="bi bi-table me-2"></i>Data Laporan</h6>
+        <h6 class="mb-0 fw-bold"><i class="bi bi-table me-2"></i>Report Overview</h6>
+        @if(count($report['rows']) > 0)
         <span class="badge bg-white text-dark fw-semibold">{{ count($report['rows']) }} data</span>
+        @endif
     </div>
+    @if(count($report['rows']) > 0)
     <div class="report-card-body p-0">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0" id="report-table">
@@ -74,7 +91,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($report['rows'] as $row)
+                    @foreach($report['rows'] as $row)
                         <tr>
                             <td class="ps-4 text-muted">{{ $loop->iteration }}</td>
                             @foreach($row as $cell)
@@ -91,14 +108,7 @@
                                 </td>
                             @endforeach
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="{{ count($report['headers']) + 1 }}" class="text-center text-muted py-5">
-                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                                Tidak ada data untuk ditampilkan.
-                            </td>
-                        </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>
@@ -107,7 +117,115 @@
         <i class="bi bi-file-earmark-text me-1"></i>
         Menampilkan {{ count($report['rows']) }} data | PT. Chakra Jawara Kabupaten Banjar
     </div>
+    @else
+    <div class="report-card-body text-center py-5">
+        <div class="mb-4">
+            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+        </div>
+        <h5 class="fw-bold text-secondary mb-2">No Report Generated Yet</h5>
+        <p class="text-muted mb-0">Pilih <strong>Period</strong> dan klik <strong>Filter</strong> untuk menampilkan data laporan.</p>
+    </div>
+    @endif
 </div>
+
+@if($filterable)
+@push('scripts')
+<script>
+const periodSelect = document.getElementById('periodSelect');
+const dateSingleWrap = document.getElementById('dateSingleWrap');
+const dateFromWrap = document.getElementById('dateFromWrap');
+const dateToWrap = document.getElementById('dateToWrap');
+const monthWrap = document.getElementById('monthWrap');
+const dateSingle = document.getElementById('dateSingle');
+const dateFrom = document.getElementById('dateFrom');
+const dateTo = document.getElementById('dateTo');
+const monthInput = document.getElementById('monthInput');
+
+function formatDate(date) {
+    return date.toISOString().split('T')[0];
+}
+
+function getMonday(d) {
+    d = new Date(d);
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    return new Date(d.setDate(diff));
+}
+
+periodSelect.addEventListener('change', function() {
+    const val = this.value;
+    const now = new Date();
+    const today = formatDate(now);
+    const yesterday = formatDate(new Date(now.setDate(now.getDate() - 1)));
+
+    // Reset visibility
+    dateSingleWrap.style.display = 'none';
+    dateFromWrap.style.display = 'none';
+    dateToWrap.style.display = 'none';
+    monthWrap.style.display = 'none';
+    dateSingle.value = '';
+    dateFrom.value = '';
+    dateTo.value = '';
+    monthInput.value = '';
+
+    switch (val) {
+        case 'today':
+            dateSingleWrap.style.display = '';
+            dateSingle.value = today;
+            break;
+        case 'yesterday':
+            dateSingleWrap.style.display = '';
+            dateSingle.value = formatDate(new Date(Date.now() - 86400000));
+            break;
+        case 'this_week':
+            dateFromWrap.style.display = '';
+            dateToWrap.style.display = '';
+            dateFrom.value = formatDate(getMonday(new Date()));
+            dateTo.value = today;
+            break;
+        case 'last_week':
+            dateFromWrap.style.display = '';
+            dateToWrap.style.display = '';
+            const lastMon = getMonday(new Date(Date.now() - 7 * 86400000));
+            dateFrom.value = formatDate(lastMon);
+            dateTo.value = formatDate(new Date(lastMon.getTime() + 6 * 86400000));
+            break;
+        case 'this_month':
+            monthWrap.style.display = '';
+            monthInput.value = today.substring(0, 7);
+            break;
+        case 'last_month':
+            monthWrap.style.display = '';
+            const lm = new Date();
+            lm.setMonth(lm.getMonth() - 1);
+            monthInput.value = formatDate(lm).substring(0, 7);
+            break;
+        case 'custom':
+            dateFromWrap.style.display = '';
+            dateToWrap.style.display = '';
+            break;
+    }
+});
+
+// Init: show correct fields on page load
+(function() {
+    const hasDate = dateSingle.value !== '';
+    const hasRange = dateFrom.value !== '' && dateTo.value !== '';
+    const hasMonth = monthInput.value !== '';
+
+    if (hasDate) { dateSingleWrap.style.display = ''; }
+    else if (hasRange) { dateFromWrap.style.display = ''; dateToWrap.style.display = ''; }
+    else if (hasMonth) { monthWrap.style.display = ''; }
+})();
+</script>
+@endpush
+@endif
 
 <style>
     /* Dark Header */
@@ -201,18 +319,26 @@
     .text-danger { color: #dc2626 !important; }
 
     /* Form Control */
-    .form-control-lg {
+    .form-control-lg, .form-select-lg {
         border-radius: 10px;
         border-color: #e2e8f0;
     }
-    .form-control-lg:focus {
+    .form-control-lg:focus, .form-select-lg:focus {
         border-color: #6366f1;
         box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+    .form-select-lg {
+        padding-right: 2.5rem;
+    }
+
+    /* Empty State */
+    .report-card-body svg {
+        opacity: 0.5;
     }
 
     /* Print Styles */
     @media print {
-        .sidebar, .topbar, .btn, .navbar { display: none !important; }
+        .sidebar, .topbar, .btn, .navbar, #filterForm, .report-card:first-of-type { display: none !important; }
         .main-area { margin-left: 0 !important; padding: 0 !important; }
         .content-wrap { padding: 0 !important; }
         .report-header {
@@ -256,6 +382,7 @@
         }
         tr { page-break-inside: avoid; }
         thead { display: table-header-group; }
+        .report-card-body .text-center.py-5 { display: none !important; }
     }
 </style>
 @endsection
