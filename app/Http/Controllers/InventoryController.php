@@ -227,13 +227,7 @@ class InventoryController extends Controller
     public function stockMonitoring(): View
     {
         $spareparts = Sparepart::with(['category', 'supplier'])
-            ->selectRaw("spareparts.*,
-                CASE
-                    WHEN spareparts.stock <= 0 THEN 1
-                    WHEN spareparts.stock <= spareparts.min_stock THEN 2
-                    ELSE 3
-                END as status_order")
-            ->orderBy('status_order')
+            ->orderBy('stock')
             ->get();
 
         return view('inventory.monitoring', [

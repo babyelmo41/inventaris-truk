@@ -58,16 +58,11 @@ class ReportController extends Controller
                             WHEN spareparts.stock <= 0 THEN 'Habis'
                             WHEN spareparts.stock <= spareparts.min_stock THEN 'Hampir Habis'
                             ELSE 'Aman'
-                        END as status"),
-                        DB::raw("CASE 
-                            WHEN spareparts.stock <= 0 THEN 1
-                            WHEN spareparts.stock <= spareparts.min_stock THEN 2
-                            ELSE 3
-                        END as status_order")
+                        END as status")
                     )
                     ->join('categories', 'spareparts.category_id', '=', 'categories.id')
                     ->join('suppliers', 'spareparts.supplier_id', '=', 'suppliers.id')
-                    ->orderBy('status_order')
+                    ->orderBy('spareparts.stock')
                     ->get()
                     ->map(fn ($row) => [
                         $row->code,
