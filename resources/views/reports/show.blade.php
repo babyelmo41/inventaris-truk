@@ -29,7 +29,7 @@
     <div class="report-card-body">
         <form method="GET" id="filterForm">
             <div class="row g-3 align-items-end">
-                <div class="col-md-3">
+                <div class="col-md" id="periodCol">
                     <label class="form-label fw-semibold text-muted small">Period</label>
                     <select id="periodSelect" class="form-select form-select-lg">
                         <option value="" {{ !request()->has('date') && !request()->has('date_from') && !request()->has('month') ? 'selected' : '' }}>-- Pilih Period --</option>
