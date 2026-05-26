@@ -4,6 +4,7 @@
         ['label' => 'Monitoring Stok', 'icon' => 'bi-clipboard-data', 'route' => 'stock.monitoring'],
         ['label' => 'Laporan', 'icon' => 'bi-file-earmark-bar-graph', 'route' => 'pimpinan.reports.index'],
     ];
+    $stokMenipis = App\Models\Sparepart::whereColumn('stock', '<=', 'min_stock')->count();
 @endphp
 <aside class="sidebar">
     <div class="brand-panel d-flex align-items-center gap-3">
@@ -20,6 +21,9 @@
                 <a class="nav-link {{ request()->routeIs($item['route'] . '*') ? 'active' : '' }}" href="{{ route($item['route'], $item['params'] ?? []) }}">
                     <i class="bi {{ $item['icon'] }}"></i>
                     <span>{{ $item['label'] }}</span>
+                    @if($item['route'] === 'stock.monitoring' && $stokMenipis > 0)
+                        <span class="badge rounded-pill bg-danger ms-auto">{{ $stokMenipis }}</span>
+                    @endif
                 </a>
             @endforeach
             <form method="POST" action="{{ route('logout') }}" class="mt-2 px-3">

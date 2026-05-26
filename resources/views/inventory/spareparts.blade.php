@@ -63,7 +63,7 @@
                             </td>
                             <td class="text-end pe-4">
                                 <a href="{{ route('admin.spareparts.edit', $sparepart) }}" class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil-square"></i></a>
-                                <form action="{{ route('admin.spareparts.destroy', $sparepart) }} }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin hapus sparepart ini?')">
+                                <form action="{{ route('admin.spareparts.destroy', $sparepart) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin hapus sparepart ini?')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
