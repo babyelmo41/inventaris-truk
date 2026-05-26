@@ -159,6 +159,7 @@
             height: 400px;
             background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
             border-radius: 50%;
+            pointer-events: none;
         }
         .page-header::after {
             content: '';
@@ -169,6 +170,7 @@
             height: 200px;
             background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, transparent 70%);
             border-radius: 50%;
+            pointer-events: none;
         }
 
         /* Modern Card */

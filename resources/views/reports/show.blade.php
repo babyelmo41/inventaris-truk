@@ -9,7 +9,7 @@
             <p class="text-white-50 mb-0">{{ $report['description'] }}</p>
         </div>
         <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
-            <div class="d-flex gap-2 justify-content-lg-end">
+            <div class="d-flex gap-2 justify-content-lg-end position-relative" style="z-index:1">
                 <button onclick="window.print()" class="btn btn-light"><i class="bi bi-printer me-2"></i>Cetak</button>
                 <a href="{{ route('reports.pdf', array_merge(['type' => $type], request()->query())) }}" class="btn btn-danger"><i class="bi bi-file-earmark-pdf me-2"></i>Download PDF</a>
                 <a href="{{ url()->previous() }}" class="btn btn-outline-light"><i class="bi bi-arrow-left me-2"></i>Kembali</a>
@@ -127,6 +127,7 @@
         height: 400px;
         background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
         border-radius: 50%;
+        pointer-events: none;
     }
     .report-header::after {
         content: '';
@@ -137,6 +138,7 @@
         height: 200px;
         background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, transparent 70%);
         border-radius: 50%;
+        pointer-events: none;
     }
 
     /* Card Style */
