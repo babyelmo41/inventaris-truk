@@ -3,8 +3,12 @@
 namespace Database\Seeders;
 
 use App\Models\BarangMasuk;
+use App\Models\BarangKeluar;
 use App\Models\DetailBarangMasuk;
+use App\Models\DetailBarangKeluar;
 use App\Models\Sparepart;
+use App\Models\Supplier;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class BarangMasukSeeder extends Seeder
@@ -13,101 +17,115 @@ class BarangMasukSeeder extends Seeder
     {
         \DB::statement('SET FOREIGN_KEY_CHECKS=0');
         BarangMasuk::truncate();
+        BarangKeluar::truncate();
         DetailBarangMasuk::truncate();
+        DetailBarangKeluar::truncate();
         \DB::statement('SET FOREIGN_KEY_CHECKS=1');
 
         $spareparts = Sparepart::all();
-        $supplierIds = [1, 2, 3];
-        $userIds = [1, 3];
+        $suppliers = Supplier::all();
+        $users = User::all();
 
-        $notesList = [
-            'Pengiriman sparepart rutin',
-            'Restock bulanan gudang',
-            'Pesanan supplier reguler',
-            'Pengiriman tambahan',
-            'Restock stok menipis',
-            'Pesanan mendesak',
-            'Pengiriman sparepart campuran',
-            'Restock setelah audit stok',
-            'Pesanan sparepart fast moving',
-            'Pengiriman dari supplier utama',
-        ];
+        if ($spareparts->isEmpty() || $suppliers->isEmpty() || $users->isEmpty()) {
+            $this->command->error('Run SupplierSeeder, SparepartSeeder, and create users first.');
+            return;
+        }
 
-        $supplierNotes = [
-            1 => ['pengiriman', 'restock', 'filter', 'ban', 'oli'],
-            2 => ['lampu', 'aki', 'bohlam', 'velg', 'elektrikal'],
-            3 => ['seal', 'bushing', 'shockbreaker', 'baut', 'ring'],
-        ];
+        $startDate = \Carbon\Carbon::parse('2025-01-01');
+        $endDate = \Carbon\Carbon::parse('2026-05-31');
+        $currentDate = $startDate->copy();
 
-        $counter = 0;
-        $months = 6;
+        $bmCounter = 1;
+        $bkCounter = 1;
 
-        for ($m = $months - 1; $m >= 0; $m--) {
-            $monthStart = now()->subMonths($m)->startOfMonth();
-            $daysInMonth = $monthStart->daysInMonth;
-            $txCount = rand(4, 6);
+        while ($currentDate->lte($endDate)) {
+            $dateStr = $currentDate->format('Y-m-d');
 
-            for ($i = 0; $i < $txCount; $i++) {
-                $counter++;
-                $day = rand(1, min(28, $daysInMonth));
-                $date = $monthStart->copy()->addDays($day - 1);
-                $supplierId = $supplierIds[array_rand($supplierIds)];
-                $userId = $userIds[array_rand($userIds)];
-                $hour = str_pad(rand(8, 16), 2, '0', STR_PAD_LEFT);
-                $minute = str_pad(rand(0, 59), 2, '0', STR_PAD_LEFT);
+            // === BARANG MASUK: setiap hari pasti ada ===
+            $jumlahMasuk = rand(1, 2);
+            for ($m = 0; $m < $jumlahMasuk; $m++) {
+                $hour = rand(7, 16);
+                $timeStr = sprintf('%02d:%02d:00', $hour, rand(0, 59));
+                $invoiceNo = 'BM-' . $dateStr . '-' . str_pad($bmCounter++, 3, '0', STR_PAD_LEFT);
 
-                $supplierKeywords = $supplierNotes[$supplierId];
-                $note = ucfirst($supplierKeywords[array_rand($supplierKeywords)]) . ' ' .
-                        $supplierKeywords[array_rand($supplierKeywords)] . ' - ' .
-                        $notesList[array_rand($notesList)];
+                $numItems = rand(2, 4);
+                $selectedItems = $spareparts->random($numItems);
 
                 $barangMasuk = BarangMasuk::create([
-                    'invoice_no' => 'IN-' . $date->format('Ymd') . '-' . str_pad($counter, 3, '0', STR_PAD_LEFT),
-                    'date' => $date->toDateString(),
-                    'time' => $hour . ':' . $minute,
-                    'supplier_id' => $supplierId,
-                    'user_id' => $userId,
-                    'notes' => $note,
+                    'invoice_no' => $invoiceNo,
+                    'date' => $dateStr,
+                    'time' => $timeStr,
+                    'supplier_id' => $suppliers->random()->id,
+                    'user_id' => $users->random()->id,
+                    'notes' => '',
                 ]);
 
-                // 2-3 detail items per transaction
-                $detailCount = rand(2, 3);
-                $pickedIds = [];
-                for ($j = 0; $j < $detailCount; $j++) {
-                    // Pick a random sparepart, avoid duplicates within same transaction
-                    do {
-                        $sp = $spareparts->random();
-                    } while (in_array($sp->id, $pickedIds) && count($pickedIds) < $spareparts->count());
-                    $pickedIds[] = $sp->id;
-
-                    $qty = match (true) {
-                        $sp->id <= 6 => rand(10, 30),    // filter, kampas, seal — medium qty
-                        in_array($sp->id, [13, 15]) => rand(4, 12),  // ban, velg — low qty
-                        in_array($sp->id, [11, 16, 17]) => rand(4, 10), // aki, shockbreaker — low qty
-                        default => rand(15, 50),           // bohlam, baut, bushing — high qty
-                    };
-
-                    // Harga estimasi per sparepart (berdasarkan data sebelumnya)
-                    $priceMap = [
-                        1 => 185000,  2 => 165000,  3 => 195000,   // filter
-                        4 => 275000,  5 => 245000,  6 => 450000,    // rem
-                        7 => 1250000, 8 => 18000,   9 => 35000,     // mesin
-                        10 => 325000, 11 => 850000, 12 => 15000,    // kelistrikan
-                        13 => 1250000, 14 => 25000, 15 => 750000,   // ban
-                        16 => 580000, 17 => 650000, 18 => 155000,   // suspensi
-                    ];
-                    $price = $priceMap[$sp->id] ?? rand(10000, 200000);
-
+                foreach ($selectedItems as $sp) {
+                    $qty = rand(5, 50);
                     DetailBarangMasuk::create([
                         'barang_masuk_id' => $barangMasuk->id,
                         'sparepart_id' => $sp->id,
                         'quantity' => $qty,
-                        'price' => $price,
+                        'price' => $this->getPriceForSparepart($sp->id),
                     ]);
                 }
             }
+
+            // === BARANG KELUAR: ~60% hari ada transaksi ===
+            if (rand(0, 100) < 60) {
+                $keluarHour = rand(8, 15);
+                $keluarTime = sprintf('%02d:%02d:00', $keluarHour, rand(0, 59));
+                $referenceOut = 'BK-' . $dateStr . '-' . str_pad($bkCounter++, 3, '0', STR_PAD_LEFT);
+
+                $numItemsOut = rand(2, 4);
+                $selectedItemsOut = $spareparts->random($numItemsOut);
+
+                $barangKeluar = BarangKeluar::create([
+                    'reference_no' => $referenceOut,
+                    'date' => $dateStr,
+                    'time' => $keluarTime,
+                    'purpose' => $this->getRandomPurpose(),
+                    'notes' => '',
+                    'user_id' => $users->random()->id,
+                ]);
+
+                foreach ($selectedItemsOut as $sp) {
+                    $qtyOut = rand(1, 15);
+                    DetailBarangKeluar::create([
+                        'barang_keluar_id' => $barangKeluar->id,
+                        'sparepart_id' => $sp->id,
+                        'quantity' => $qtyOut,
+                    ]);
+                }
+            }
+
+            $currentDate->addDay();
         }
 
-        $this->command?->info("✓ {$counter} transaksi Barang Masuk + detail (6 bulan terakhir)");
+        $this->command->info('✅ Generated ' . ($bmCounter - 1) . ' BM + ' . ($bkCounter - 1) . ' BK (Jan 2025 - Mei 2026)');
+    }
+
+    private function getPriceForSparepart(int $id): int
+    {
+        static $map = [
+            1 => 185000, 2 => 165000, 3 => 195000, 4 => 250000, 5 => 85000,
+            6 => 145000, 7 => 320000, 8 => 175000, 9 => 95000, 10 => 65000,
+            11 => 125000, 12 => 45000, 13 => 55000, 14 => 210000, 15 => 75000,
+            16 => 380000, 17 => 155000, 18 => 90000, 19 => 420000, 20 => 135000,
+        ];
+        return $map[$id] ?? rand(50000, 400000);
+    }
+
+    private function getRandomPurpose(): string
+    {
+        $purposes = [
+            'Perawatan rutin armada', 'Perbaikan unit rusak',
+            'Penggantian komponen', 'Persiapan perjalanan jauh',
+            'Perbaikan darurat', 'Service berkala',
+            'Penggantian sparepart aus', 'Perbaikan unit kecelakaan',
+            'Maintenance fleet', 'Perbaikan mesin unit',
+            'Servis rem dan kanvas', 'Penggantian ban dan filter',
+        ];
+        return $purposes[array_rand($purposes)];
     }
 }
