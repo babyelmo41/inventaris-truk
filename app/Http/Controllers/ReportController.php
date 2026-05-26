@@ -171,9 +171,8 @@ class ReportController extends Controller
                          ->whereMonth($dateColumn, $month);
         }
 
-        // Default: bulan ini
-        return $query->whereYear($dateColumn, now()->year)
-                     ->whereMonth($dateColumn, now()->month);
+        // Tidak ada filter → tampilkan data kosong (user harus filter dulu)
+        return $query->whereRaw('1 = 0');
     }
 
     private function getBarangMasukRows(Request $request): array
@@ -256,21 +255,26 @@ class ReportController extends Controller
             ->join('users', 'barang_keluar.user_id', '=', 'users.id');
 
         // Apply date filter to both subqueries
+        $hasFilter = false;
         if ($request->filled('date')) {
             $masuk->whereDate('barang_masuk.date', $request->date);
             $keluar->whereDate('barang_keluar.date', $request->date);
+            $hasFilter = true;
         } elseif ($request->filled('date_from') && $request->filled('date_to')) {
             $masuk->whereBetween('barang_masuk.date', [$request->date_from, $request->date_to]);
             $keluar->whereBetween('barang_keluar.date', [$request->date_from, $request->date_to]);
+            $hasFilter = true;
         } elseif ($request->filled('month')) {
             $year = substr($request->month, 0, 4);
             $month = substr($request->month, 5, 2);
             $masuk->whereYear('barang_masuk.date', $year)->whereMonth('barang_masuk.date', $month);
             $keluar->whereYear('barang_keluar.date', $year)->whereMonth('barang_keluar.date', $month);
-        } else {
-            // Default: bulan ini
-            $masuk->whereYear('barang_masuk.date', now()->year)->whereMonth('barang_masuk.date', now()->month);
-            $keluar->whereYear('barang_keluar.date', now()->year)->whereMonth('barang_keluar.date', now()->month);
+            $hasFilter = true;
+        }
+
+        // Tidak ada filter → tampilkan data kosong
+        if (! $hasFilter) {
+            return [];
         }
 
         $transactions = $masuk->unionAll($keluar)

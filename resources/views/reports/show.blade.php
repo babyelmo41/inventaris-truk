@@ -50,7 +50,7 @@
                     </div>
                 </div>
             </div>
-            <div class="form-text mt-2"><i class="bi bi-info-circle me-1"></i>Kosongkan semua filter untuk menampilkan data bulan ini (default).</div>
+            <div class="form-text mt-2"><i class="bi bi-info-circle me-1"></i>Pilih rentang waktu terlebih dahulu untuk menampilkan data laporan.</div>
         </form>
     </div>
 </div>
