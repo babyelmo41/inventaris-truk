@@ -23,7 +23,7 @@ class DashboardController extends Controller
             'title' => 'Dashboard Admin Gudang',
             'stats' => [
                 ['label' => 'Total Jenis Sparepart', 'value' => Sparepart::count(), 'icon' => 'bi-box-seam', 'tone' => 'primary'],
-                ['label' => 'Stok Hampir Habis', 'value' => Sparepart::whereColumn('stock', '<=', 'min_stock')->count(), 'icon' => 'bi-exclamation-triangle', 'tone' => 'warning'],
+                ['label' => 'Stok Hampir Habis', 'value' => Sparepart::whereColumn('stock', '<=', 'min_stock')->where('stock', '>', 0)->count(), 'icon' => 'bi-exclamation-triangle', 'tone' => 'warning'],
                 ['label' => 'Barang Masuk Hari Ini', 'value' => BarangMasuk::whereDate('date', $today)->count(), 'icon' => 'bi-arrow-down-circle', 'tone' => 'success'],
                 ['label' => 'Barang Keluar Hari Ini', 'value' => BarangKeluar::whereDate('date', $today)->count(), 'icon' => 'bi-arrow-up-circle', 'tone' => 'danger'],
             ],

@@ -285,7 +285,7 @@ class InventoryController extends Controller
             'date' => $request->date,
             'time' => $request->time,
             'supplier_id' => $request->supplier_id,
-            'user_id' => auth()->id(),
+            'user_id' => $request->session()->get('auth_user.id'),
             'notes' => $request->notes,
         ]);
 
@@ -395,6 +395,7 @@ class InventoryController extends Controller
     {
         $request->validate([
             'date' => 'required|date',
+            'time' => 'required',
             'reference_no' => 'required|unique:barang_keluar,reference_no',
             'purpose' => 'required',
             'notes' => 'nullable',
@@ -414,8 +415,9 @@ class InventoryController extends Controller
         $transaction = BarangKeluar::create([
             'reference_no' => $request->reference_no,
             'date' => $request->date,
+            'time' => $request->time,
             'purpose' => $request->purpose,
-            'user_id' => auth()->id(),
+            'user_id' => $request->session()->get('auth_user.id'),
             'notes' => $request->notes,
         ]);
 

@@ -123,6 +123,7 @@ class ReportController extends Controller
                     ->join('suppliers', 'spareparts.supplier_id', '=', 'suppliers.id')
                     ->whereColumn('spareparts.stock', '<=', 'spareparts.min_stock')
                     ->orderBy('status_order')
+                    ->orderBy('spareparts.stock')
                     ->get()
                     ->map(fn ($row) => [
                         $row->code,

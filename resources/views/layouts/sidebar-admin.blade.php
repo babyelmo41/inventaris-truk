@@ -23,7 +23,7 @@
         <div class="px-4 pb-2 small text-uppercase text-secondary fw-semibold">Menu Utama</div>
         <nav class="nav flex-column">
             @foreach($items as $item)
-                <a class="nav-link {{ request()->routeIs($item['route']) ? 'active' : '' }}" href="{{ route($item['route'], $item['params'] ?? []) }}">
+                <a class="nav-link {{ request()->routeIs($item['route'] . '*') ? 'active' : '' }}" href="{{ route($item['route'], $item['params'] ?? []) }}">
                     <i class="bi {{ $item['icon'] }}"></i>
                     <span>{{ $item['label'] }}</span>
                 </a>
