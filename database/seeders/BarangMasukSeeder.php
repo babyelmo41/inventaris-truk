@@ -11,8 +11,10 @@ class BarangMasukSeeder extends Seeder
 {
     public function run(): void
     {
+        \DB::statement('SET FOREIGN_KEY_CHECKS=0');
         BarangMasuk::truncate();
         DetailBarangMasuk::truncate();
+        \DB::statement('SET FOREIGN_KEY_CHECKS=1');
 
         $spareparts = Sparepart::all();
         $supplierIds = [1, 2, 3];
