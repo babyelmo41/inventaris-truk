@@ -44,7 +44,7 @@
             </div>
             <div class="col-md-3 mb-3">
                 <label for="invoice_no" class="form-label fw-semibold">No Invoice <span class="text-danger">*</span></label>
-                <input type="text" class="form-control @error('invoice_no') is-invalid @enderror" id="invoice_no" name="invoice_no" value="{{ old('invoice_no', $transaction->invoice_no ?? '') }}" placeholder="Contoh: INV-2024-001" required>
+                <input type="text" class="form-control @error('invoice_no') is-invalid @enderror" id="invoice_no" name="invoice_no" value="{{ old('invoice_no', $transaction->invoice_no ?? $generatedInvoiceNo ?? '') }}" {{ $transaction ? '' : 'readonly' }} required>
                 @error('invoice_no')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror

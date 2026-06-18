@@ -31,10 +31,44 @@
         .sidebar {
             background: #111827;
             color: #e5e7eb;
-            min-height: 100vh;
+            height: 100vh;
             position: fixed;
+            left: 0;
+            top: 0;
             width: var(--sidebar-width);
             z-index: 1030;
+            transition: left .3s ease;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sidebar-nav {
+            flex: 1 1 auto;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Custom scrollbar for sidebar */
+        .sidebar-nav::-webkit-scrollbar {
+            width: 4px;
+        }
+        .sidebar-nav::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .sidebar-nav::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, .15);
+            border-radius: 4px;
+        }
+        .sidebar-nav::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, .25);
+        }
+
+        .sidebar-footer {
+            flex-shrink: 0;
+            border-top: 1px solid rgba(255, 255, 255, .08);
+            padding: .75rem;
         }
 
         .brand-panel {
@@ -68,9 +102,29 @@
             color: #fff;
         }
 
+        .sidebar .nav-link.active {
+            background: rgba(37, 99, 235, .25);
+            border-left: 3px solid #60a5fa;
+            padding-left: calc(.85rem - 3px);
+        }
+
+        .sidebar-section-label {
+            color: #64748b;
+            font-size: .68rem;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+        }
+
+        .sidebar .nav-link .badge {
+            font-size: .68rem;
+            min-width: 1.6em;
+        }
+
         .main-area {
             margin-left: var(--sidebar-width);
             min-height: 100vh;
+            transition: margin-left .3s ease;
         }
 
         .topbar {
@@ -251,6 +305,69 @@
             flex-shrink: 0;
         }
 
+        /* Report header & card responsive */
+        .report-header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 16px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .report-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+            transition: all 0.2s ease;
+        }
+
+        .report-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.08);
+        }
+
+        .report-card-body {
+            padding: 1.5rem;
+        }
+
+        .report-card-header {
+            background: #f8fafc;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .report-card-footer {
+            background: #f8fafc;
+            padding: 0.75rem 1.5rem;
+            border-top: 1px solid #e2e8f0;
+            font-size: 0.85rem;
+        }
+
+        .report-card table thead tr {
+            background: #f1f5f9;
+        }
+
+        .report-card table thead th {
+            font-weight: 600;
+            color: #475569;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0.85rem 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .report-card table tbody td {
+            padding: 0.8rem 1rem;
+            color: #334155;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .report-card table tbody tr:hover {
+            background: #f8fafc;
+        }
+
         /* Mobile sidebar overlay */
         .sidebar-overlay {
             display: none;
@@ -269,12 +386,7 @@
 
         @media (max-width: 991.98px) {
             .sidebar {
-                position: fixed;
                 left: -280px;
-                top: 0;
-                width: 276px;
-                min-height: 100vh;
-                transition: left .3s ease;
                 z-index: 1040;
             }
 
@@ -303,15 +415,163 @@
                 font-size: .7rem;
             }
 
-            /* Responsive tables */
-            .table-responsive-custom {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
+            .page-header {
+                padding: 1.25rem;
+                border-radius: 12px;
             }
 
-            .table-responsive-custom .btn-sm {
-                font-size: .75rem;
-                padding: .25rem .5rem;
+            .page-header .h3 {
+                font-size: 1.15rem;
+            }
+
+            .page-header p {
+                font-size: .82rem;
+            }
+
+            /* Responsive tables: hide less important columns */
+            .hide-md {
+                display: none !important;
+            }
+
+            .table > :not(caption) > * > * {
+                padding: .6rem .5rem;
+                font-size: .85rem;
+            }
+
+            /* Modern card adjustments */
+            .modern-card-body {
+                padding: 1rem;
+            }
+
+            .modern-card-header {
+                padding: .75rem 1rem;
+            }
+
+            /* Stat cards: 2 columns on tablet */
+            .metric-card .display-6 {
+                font-size: 1.5rem;
+            }
+
+            /* Filter row stacking */
+            .filter-row .col-md-7,
+            .filter-row .col-md-5 {
+                margin-bottom: .5rem;
+            }
+
+            /* Report pages responsive */
+            .report-header {
+                padding: 1.25rem;
+                border-radius: 12px;
+            }
+
+            .report-header .h3 {
+                font-size: 1.15rem;
+            }
+
+            .report-header p {
+                font-size: .82rem;
+            }
+
+            .report-card-body {
+                padding: 1rem;
+            }
+
+            .report-card-header {
+                padding: .75rem 1rem;
+            }
+
+            /* Panel card responsive */
+            .panel-card {
+                padding: 1.25rem !important;
+            }
+
+            .panel-card .h5 {
+                font-size: 1.1rem;
+            }
+        }
+
+        /* Extra small phones (< 576px) */
+        @media (max-width: 575.98px) {
+            .content-wrap {
+                padding: .75rem .5rem;
+            }
+
+            .page-header {
+                padding: 1rem;
+                border-radius: 10px;
+                margin-bottom: 1rem;
+            }
+
+            .page-header .h3 {
+                font-size: 1rem;
+            }
+
+            .page-header .btn {
+                font-size: .8rem;
+                padding: .35rem .75rem;
+            }
+
+            .metric-card {
+                padding: .75rem !important;
+            }
+
+            .metric-card .display-6 {
+                font-size: 1.3rem;
+            }
+
+            .metric-icon {
+                width: 38px;
+                height: 38px;
+                font-size: 1.1rem;
+            }
+
+            .topbar .badge {
+                font-size: .7rem;
+                padding: .3em .6em;
+            }
+
+            /* Hide more columns on very small screens */
+            .hide-sm {
+                display: none !important;
+            }
+
+            .modern-card-footer {
+                padding: .5rem 1rem;
+                font-size: .78rem;
+            }
+
+            /* Report pages extra small */
+            .report-header {
+                padding: 1rem;
+                border-radius: 10px;
+                margin-bottom: 1rem;
+            }
+
+            .report-header .h3 {
+                font-size: 1rem;
+            }
+
+            .report-card-body {
+                padding: .75rem;
+            }
+
+            .report-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1.1rem;
+            }
+
+            /* Panel card extra small */
+            .panel-card {
+                padding: 1rem !important;
+            }
+
+            .panel-card .h5 {
+                font-size: 1rem;
+            }
+
+            .panel-card .h2 {
+                font-size: 1.1rem;
             }
         }
     </style>
@@ -321,6 +581,8 @@
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     @if(($user['role'] ?? null) === 'pimpinan')
         @include('layouts.sidebar-pimpinan')
+    @elseif(($user['role'] ?? null) === 'karyawan')
+        @include('layouts.sidebar-karyawan')
     @else
         @include('layouts.sidebar-admin')
     @endif

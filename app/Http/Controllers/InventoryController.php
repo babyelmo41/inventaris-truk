@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\CodeGenerator;
 use App\Models\BarangKeluar;
 use App\Models\BarangMasuk;
 use App\Models\Category;
@@ -10,6 +11,7 @@ use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
 class InventoryController extends Controller
@@ -34,6 +36,7 @@ class InventoryController extends Controller
             'sparepart' => null,
             'categories' => Category::all(),
             'suppliers' => Supplier::all(),
+            'generatedCode' => CodeGenerator::sparepartCode(),
         ]);
     }
 
@@ -221,6 +224,62 @@ class InventoryController extends Controller
         ]);
     }
 
+    public function userEdit(User $user): View
+    {
+        return view('inventory.user-form', [
+            'title' => 'Edit User',
+            'user' => $user,
+        ]);
+    }
+
+    public function userUpdate(Request $request, User $user): RedirectResponse
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'role' => 'required|in:admin,pimpinan,karyawan',
+        ]);
+
+        $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'role' => $request->role,
+        ]);
+
+        return redirect()->route('admin.users.index')->with('success', "Data user {$user->name} berhasil diupdate!");
+    }
+
+    public function userPasswordForm(User $user): View
+    {
+        return view('inventory.user-password', [
+            'title' => 'Ubah Password',
+            'user' => $user,
+        ]);
+    }
+
+    public function userUpdatePassword(Request $request, User $user): RedirectResponse
+    {
+        $request->validate([
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+
+        $user->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        return redirect()->route('admin.users.index')->with('success', "Password {$user->name} berhasil diubah!");
+    }
+
+    public function userToggleStatus(User $user): RedirectResponse
+    {
+        $user->update([
+            'is_active' => ! $user->is_active,
+        ]);
+
+        $status = $user->is_active ? 'diaktifkan' : 'dinonaktifkan';
+        return redirect()->route('admin.users.index')->with('success', "User {$user->name} berhasil {$status}!");
+    }
+
     // ============================================
     // STOCK MONITORING
     // ============================================
@@ -263,6 +322,7 @@ class InventoryController extends Controller
             'transaction' => null,
             'suppliers' => Supplier::all(),
             'spareparts' => Sparepart::all(),
+            'generatedInvoiceNo' => CodeGenerator::invoiceNo(),
         ]);
     }
 
@@ -378,7 +438,8 @@ class InventoryController extends Controller
     {
         return view('transactions.outgoing', [
             'title' => 'Barang Keluar',
-            'transactions' => BarangKeluar::with(['user', 'details.sparepart'])->latest('date')->paginate(10),
+            'transactions' => BarangKeluar::with(['user', 'requester', 'details.sparepart'])->latest('date')->paginate(10),
+            'pendingCount' => BarangKeluar::where('status', 'pending')->count(),
         ]);
     }
 
@@ -388,6 +449,7 @@ class InventoryController extends Controller
             'title' => 'Tambah Barang Keluar',
             'transaction' => null,
             'spareparts' => Sparepart::where('stock', '>', 0)->get(),
+            'generatedReferenceNo' => CodeGenerator::referenceNo(),
         ]);
     }
 
@@ -399,6 +461,8 @@ class InventoryController extends Controller
             'reference_no' => 'required|unique:barang_keluar,reference_no',
             'purpose' => 'required',
             'notes' => 'nullable',
+            'requested_by' => 'nullable|exists:users,id',
+            'truck_name' => 'nullable|string|max:255',
             'items' => 'required|array|min:1',
             'items.*.sparepart_id' => 'required|exists:spareparts,id',
             'items.*.quantity' => 'required|integer|min:1',
@@ -419,6 +483,8 @@ class InventoryController extends Controller
             'purpose' => $request->purpose,
             'user_id' => $request->session()->get('auth_user.id'),
             'notes' => $request->notes,
+            'requested_by' => $request->requested_by ?: null,
+            'truck_name' => $request->truck_name ?: null,
         ]);
 
         foreach ($request->items as $item) {
@@ -451,6 +517,8 @@ class InventoryController extends Controller
             'reference_no' => 'required|unique:barang_keluar,reference_no,' . $transaction->id,
             'purpose' => 'required',
             'notes' => 'nullable',
+            'requested_by' => 'nullable|exists:users,id',
+            'truck_name' => 'nullable|string|max:255',
             'items' => 'required|array|min:1',
             'items.*.sparepart_id' => 'required|exists:spareparts,id',
             'items.*.quantity' => 'required|integer|min:1',
@@ -483,6 +551,8 @@ class InventoryController extends Controller
             'time' => $request->time,
             'purpose' => $request->purpose,
             'notes' => $request->notes,
+            'requested_by' => $request->requested_by ?: null,
+            'truck_name' => $request->truck_name ?: null,
         ]);
 
         // Simpan detail baru + update stok
@@ -509,5 +579,20 @@ class InventoryController extends Controller
         $transaction->delete();
 
         return redirect()->route('admin.barang-keluar')->with('success', 'Barang keluar berhasil dihapus!');
+    }
+
+    // Proses permintaan dari karyawan (ubah status pending → processed)
+    public function outgoingProcess(BarangKeluar $transaction): RedirectResponse
+    {
+        // Kurangi stok sparepart untuk setiap item dalam permintaan
+        foreach ($transaction->details as $detail) {
+            Sparepart::where('id', $detail->sparepart_id)->decrement('stock', $detail->quantity);
+        }
+
+        $transaction->update([
+            'status' => 'processed',
+        ]);
+
+        return redirect()->route('admin.barang-keluar')->with('success', "Permintaan {$transaction->reference_no} berhasil diproses!");
     }
 }

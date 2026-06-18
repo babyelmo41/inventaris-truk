@@ -33,14 +33,14 @@
                     <tr>
                         <th class="ps-4" style="width:50px">No</th>
                         <th>Tanggal</th>
-                        <th>Waktu</th>
+                        <th class="hide-md">Waktu</th>
                         <th>No Invoice</th>
-                        <th>Supplier</th>
+                        <th class="hide-sm">Supplier</th>
                         <th>Sparepart</th>
                         <th class="text-center">Jumlah</th>
-                        <th class="text-end">Harga Satuan</th>
-                        <th class="text-end">Subtotal</th>
-                        <th>User</th>
+                        <th class="text-end hide-md">Harga Satuan</th>
+                        <th class="text-end hide-md">Subtotal</th>
+                        <th class="hide-sm">User</th>
                         <th class="text-center pe-4">Aksi</th>
                     </tr>
                 </thead>
@@ -49,20 +49,20 @@
                         @foreach($transaction->details as $detail)
                             <tr>
                                 @if($loop->first)
-                                    <td rowspan="{{ $transaction->details->count() }}" class="ps-4 text-muted">{{ ($transactions->currentPage() - 1) * $transactions->perPage() + $loop->parent->iteration }}</td>
+                                    <td rowspan="{{ $transaction->details->count() }}" class="ps-4 text-muted hide-sm">{{ ($transactions->currentPage() - 1) * $transactions->perPage() + $loop->parent->iteration }}</td>
                                     <td rowspan="{{ $transaction->details->count() }}">{{ $transaction->date->format('d M Y') }}</td>
-                                    <td rowspan="{{ $transaction->details->count() }}">{{ \Carbon\Carbon::parse($transaction->time)->format('H:i') }}</td>
+                                    <td rowspan="{{ $transaction->details->count() }}" class="hide-md">{{ \Carbon\Carbon::parse($transaction->time)->format('H:i') }}</td>
                                     <td rowspan="{{ $transaction->details->count() }}">
                                         <span class="fw-semibold">{{ $transaction->invoice_no }}</span>
                                     </td>
-                                    <td rowspan="{{ $transaction->details->count() }}">{{ $transaction->supplier->name }}</td>
+                                    <td rowspan="{{ $transaction->details->count() }}" class="hide-sm">{{ $transaction->supplier->name }}</td>
                                 @endif
                                 <td>{{ $detail->sparepart->name }}</td>
                                 <td class="text-center">{{ $detail->quantity }} {{ $detail->sparepart->unit }}</td>
-                                <td class="text-end">Rp {{ number_format($detail->price, 0, ',', '.') }}</td>
-                                <td class="text-end fw-semibold">Rp {{ number_format($detail->quantity * $detail->price, 0, ',', '.') }}</td>
+                                <td class="text-end hide-md">Rp {{ number_format($detail->price, 0, ',', '.') }}</td>
+                                <td class="text-end fw-semibold hide-md">Rp {{ number_format($detail->quantity * $detail->price, 0, ',', '.') }}</td>
                                 @if($loop->first)
-                                    <td rowspan="{{ $transaction->details->count() }}">{{ $transaction->user->name }}</td>
+                                    <td rowspan="{{ $transaction->details->count() }}" class="hide-sm">{{ $transaction->user->name }}</td>
                                     <td rowspan="{{ $transaction->details->count() }}" class="text-center pe-4">
                                         <a href="{{ route('admin.barang-masuk.edit', $transaction) }}" class="btn btn-sm btn-outline-warning" title="Edit">
                                             <i class="bi bi-pencil-square"></i>

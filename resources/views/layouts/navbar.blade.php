@@ -6,6 +6,7 @@
         <button class="btn d-lg-none p-1 me-1" id="sidebarToggle" type="button">
             <i class="bi bi-list fs-4"></i>
         </button>
+        <img src="{{ asset('images/logo-chakra-jawara.png') }}" alt="Logo" style="width:36px;height:36px;object-fit:contain;" class="d-none d-sm-block">
         <div>
             <div class="text-uppercase text-secondary fw-semibold small">PT. Chakra Jawara Kabupaten Banjar</div>
             <h1 class="h4 mb-0 fw-bold">{{ $title ?? 'Dashboard' }}</h1>

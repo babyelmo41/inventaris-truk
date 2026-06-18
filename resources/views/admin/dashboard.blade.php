@@ -17,7 +17,7 @@
 {{-- Stat Cards --}}
 <div class="row g-3 mb-4">
     @foreach($stats as $stat)
-        <div class="col-sm-6 col-xl-3">
+        <div class="col-sm-6 col-lg-4 col-xl">
             <div class="metric-card p-3 h-100">
                 <div class="d-flex align-items-start justify-content-between">
                     <div>
@@ -71,20 +71,27 @@
                         <thead>
                             <tr>
                                 <th class="ps-4">Tanggal</th>
-                                <th>Waktu</th>
+                                <th>Tipe</th>
                                 <th>Transaksi</th>
+                                <th>Info</th>
                                 <th>Qty</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($activities as $activity)
                                 <tr>
-                                    <td class="fw-semibold ps-4">{{ $activity['date'] }}</td>
-                                    <td class="fw-semibold">{{ $activity['time'] }}</td>
+                                    <td class="fw-semibold ps-4">
+                                        <div>{{ $activity['date'] }}</div>
+                                        <div class="small text-secondary">{{ $activity['time'] }}</div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ $activity['type_badge'] }}"><i class="bi {{ $activity['type_icon'] }} me-1"></i>{{ $activity['type'] }}</span>
+                                    </td>
                                     <td>
                                         <div class="fw-semibold">{{ $activity['item'] }}</div>
-                                        <div class="small text-secondary">{{ $activity['code'] }} - {{ $activity['type'] }}</div>
+                                        <div class="small text-secondary">{{ $activity['code'] }}</div>
                                     </td>
+                                    <td class="small text-secondary">{{ $activity['info'] }}</td>
                                     <td><span class="badge bg-primary bg-opacity-10 text-primary">{{ $activity['qty'] }}</span></td>
                                 </tr>
                             @endforeach

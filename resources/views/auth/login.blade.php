@@ -46,7 +46,7 @@
                 <div class="card login-card">
                     <div class="card-body p-4 p-md-5">
                         <div class="text-center mb-4">
-                            <span class="system-badge mb-3"><i class="bi bi-truck-front fs-3"></i></span>
+                            <img src="{{ asset('images/logo-chakra-jawara.png') }}" alt="Logo PT. Chakra Jawara" style="width:64px;height:64px;object-fit:contain;margin-bottom:1rem;" class="d-block mx-auto">
                             <h1 class="h4 fw-bold mb-2">Sistem Informasi Inventaris Suku Cadang Truk</h1>
                             <p class="text-secondary mb-0">PT. Chakra Jawara Kabupaten Banjar</p>
                         </div>

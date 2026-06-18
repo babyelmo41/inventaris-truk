@@ -12,10 +12,10 @@ class UserSeeder extends Seeder
     {
         $users = [
             [
-                'name' => 'Admin Gudang',
+                'name' => 'Admin',
                 'email' => 'admin@gudang.com',
                 'password' => Hash::make('password'),
-                'role' => 'admin_gudang',
+                'role' => 'admin',
             ],
             [
                 'name' => 'Pimpinan',
@@ -24,15 +24,36 @@ class UserSeeder extends Seeder
                 'role' => 'pimpinan',
             ],
             [
-                'name' => 'Operator Gudang',
-                'email' => 'operator@gudang.com',
+                'name' => 'Izza',
+                'email' => 'izza@inventaris.com',
                 'password' => Hash::make('password'),
-                'role' => 'admin_gudang',
+                'role' => 'karyawan',
+            ],
+            [
+                'name' => 'Yanor',
+                'email' => 'yanor@inventaris.com',
+                'password' => Hash::make('password'),
+                'role' => 'karyawan',
+            ],
+            [
+                'name' => 'Hafidz',
+                'email' => 'hafidz@inventaris.com',
+                'password' => Hash::make('password'),
+                'role' => 'karyawan',
+            ],
+            [
+                'name' => 'Ruli',
+                'email' => 'ruli@inventaris.com',
+                'password' => Hash::make('password'),
+                'role' => 'karyawan',
             ],
         ];
 
         foreach ($users as $user) {
-            User::create($user);
+            User::firstOrCreate(
+                ['email' => $user['email']],
+                $user
+            );
         }
     }
 }

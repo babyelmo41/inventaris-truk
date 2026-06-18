@@ -53,11 +53,13 @@
             </div>
             <div class="modern-card-body">
                 <div class="d-grid gap-2">
-                    <a href="{{ route('reports.show', 'stok-sparepart') }}" class="btn btn-outline-primary text-start"><i class="bi bi-file-earmark-text me-2"></i>Laporan Stok Sparepart</a>
-                    <a href="{{ route('reports.show', 'barang-masuk') }}" class="btn btn-outline-success text-start"><i class="bi bi-file-earmark-plus me-2"></i>Laporan Barang Masuk</a>
-                    <a href="{{ route('reports.show', 'barang-keluar') }}" class="btn btn-outline-danger text-start"><i class="bi bi-file-earmark-minus me-2"></i>Laporan Barang Keluar</a>
-                    <a href="{{ route('reports.show', 'stok-minimum') }}" class="btn btn-outline-warning text-start"><i class="bi bi-file-earmark-medical me-2"></i>Laporan Stok Minimum</a>
-                    <a href="{{ route('reports.show', 'riwayat-transaksi') }}" class="btn btn-outline-info text-start"><i class="bi bi-clock-history me-2"></i>Laporan Riwayat Transaksi</a>
+                    <a href="{{ route('reports.show', 'stok-sparepart') }}" class="btn btn-outline-primary text-start"><i class="bi bi-box-seam me-2"></i>Laporan Stok Sparepart</a>
+                    <a href="{{ route('reports.show', 'barang-masuk') }}" class="btn btn-outline-success text-start"><i class="bi bi-arrow-down-circle me-2"></i>Laporan Barang Masuk</a>
+                    <a href="{{ route('reports.show', 'barang-keluar') }}" class="btn btn-outline-danger text-start"><i class="bi bi-arrow-up-circle me-2"></i>Laporan Barang Keluar</a>
+                    <a href="{{ route('reports.show', 'stok-minimum') }}" class="btn btn-outline-warning text-start"><i class="bi bi-exclamation-triangle me-2"></i>Laporan Stok Minimum</a>
+                    <a href="{{ route('reports.show', 'transaksi-per-supplier') }}" class="btn btn-outline-info text-start"><i class="bi bi-building me-2"></i>Transaksi per Supplier</a>
+                    <a href="{{ route('reports.show', 'rekap-bulanan') }}" class="btn btn-outline-secondary text-start"><i class="bi bi-calendar-month me-2"></i>Rekap Bulanan</a>
+                    <a href="{{ route('reports.show', 'pengajuan-pembelian') }}" class="btn btn-outline-dark text-start"><i class="bi bi-clipboard-plus me-2"></i>Laporan Pengajuan Pembelian</a>
                 </div>
             </div>
         </div>

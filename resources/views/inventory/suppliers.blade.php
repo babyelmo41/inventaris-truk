@@ -30,22 +30,22 @@
             <table class="table table-hover align-middle mb-0">
                 <thead>
                     <tr>
-                        <th class="ps-4" style="width:50px">No</th>
+                        <th class="ps-4 hide-sm" style="width:50px">No</th>
                         <th>Nama Supplier</th>
-                        <th>Alamat</th>
+                        <th class="hide-md">Alamat</th>
                         <th>Telepon</th>
-                        <th>Email</th>
+                        <th class="hide-sm">Email</th>
                         <th class="text-end pe-4">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($suppliers as $supplier)
                         <tr>
-                            <td class="ps-4 text-muted">{{ ($suppliers->currentPage() - 1) * $suppliers->perPage() + $loop->iteration }}</td>
+                            <td class="ps-4 text-muted hide-sm">{{ ($suppliers->currentPage() - 1) * $suppliers->perPage() + $loop->iteration }}</td>
                             <td class="fw-semibold">{{ $supplier->name }}</td>
-                            <td>{{ $supplier->address ?? '-' }}</td>
+                            <td class="hide-md">{{ $supplier->address ?? '-' }}</td>
                             <td>{{ $supplier->phone ?? '-' }}</td>
-                            <td>{{ $supplier->email ?? '-' }}</td>
+                            <td class="hide-sm">{{ $supplier->email ?? '-' }}</td>
                             <td class="text-end pe-4">
                                 <a href="{{ route('admin.suppliers.edit', $supplier) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil-square"></i></a>
                                 <form action="{{ route('admin.suppliers.destroy', $supplier) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin hapus supplier ini?')">

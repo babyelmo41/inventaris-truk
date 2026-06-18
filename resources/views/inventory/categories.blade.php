@@ -30,19 +30,19 @@
             <table class="table table-hover align-middle mb-0">
                 <thead>
                     <tr>
-                        <th class="ps-4" style="width:50px">No</th>
+                        <th class="ps-4 hide-sm" style="width:50px">No</th>
                         <th>Nama Kategori</th>
-                        <th>Deskripsi</th>
-                        <th class="text-center">Jumlah Sparepart</th>
+                        <th class="hide-md">Deskripsi</th>
+                        <th class="text-center">Jml. SP</th>
                         <th class="text-end pe-4">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($categories as $category)
                         <tr>
-                            <td class="ps-4 text-muted">{{ ($categories->currentPage() - 1) * $categories->perPage() + $loop->iteration }}</td>
+                            <td class="ps-4 text-muted hide-sm">{{ ($categories->currentPage() - 1) * $categories->perPage() + $loop->iteration }}</td>
                             <td class="fw-semibold">{{ $category->name }}</td>
-                            <td>{{ $category->description ?? '-' }}</td>
+                            <td class="hide-md">{{ $category->description ?? '-' }}</td>
                             <td class="text-center">{{ $category->spareparts_count }}</td>
                             <td class="text-end pe-4">
                                 <a href="{{ route('admin.categories.edit', $category) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil-square"></i></a>

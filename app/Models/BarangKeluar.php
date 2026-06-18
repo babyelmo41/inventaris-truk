@@ -15,6 +15,9 @@ class BarangKeluar extends Model
         'purpose',
         'user_id',
         'notes',
+        'requested_by',
+        'truck_name',
+        'status',
     ];
 
     protected $casts = [
@@ -31,5 +34,11 @@ class BarangKeluar extends Model
     public function details()
     {
         return $this->hasMany(DetailBarangKeluar::class);
+    }
+
+    // Relasi: yang meminta barang keluar (karyawan/mekanik)
+    public function requester()
+    {
+        return $this->belongsTo(User::class, 'requested_by');
     }
 }

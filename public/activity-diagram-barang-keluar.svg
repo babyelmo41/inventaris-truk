@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 980" width="1040" height="980">
+  <defs>
+    <marker id="a" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6Z" fill="#64748b"/></marker>
+    <marker id="ar" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6Z" fill="#ef4444"/></marker>
+    <filter id="s" x="-5%" y="-5%" width="110%" height="110%"><feDropShadow dx="1" dy="1" stdDeviation="2" flood-opacity="0.3"/></filter>
+  </defs>
+  <style>
+    .bg{fill:#0d1117}.lb{fill:#161b22;opacity:0.4}.ll{stroke:#30363d;stroke-width:1}
+    .lh{font:bold 13px 'Segoe UI',Arial,sans-serif;fill:#e2e8f0}.tl{font:bold 18px 'Segoe UI',Arial,sans-serif;fill:#e2e8f0}
+    .ax{font:11px 'Segoe UI',Arial,sans-serif;fill:#e2e8f0}.dx{font:11px 'Segoe UI',Arial,sans-serif;fill:#e2e8f0}
+    .dy{font:bold 11px 'Segoe UI',Arial,sans-serif;fill:#22c55e}.dn{font:bold 11px 'Segoe UI',Arial,sans-serif;fill:#ef4444}
+    .r1{fill:#1e293b;stroke:#334155;stroke-width:1}.r2{fill:#1e293b;stroke:#22c55e;stroke-width:1}
+    .r3{fill:#1e293b;stroke:#a855f7;stroke-width:1}.r4{fill:#1e293b;stroke:#ef4444;stroke-width:1}
+    .fl{stroke:#64748b;stroke-width:1.5}.fy{stroke:#22c55e;stroke-width:1.5}.fn{stroke:#ef4444;stroke-width:1.5}
+  </style>
+  <rect class="bg" width="1040" height="980"/>
+  <rect x="0" y="50" width="260" height="930" class="lb"/><rect x="520" y="50" width="260" height="930" class="lb"/>
+  <line x1="260" y1="50" x2="260" y2="980" class="ll"/><line x1="520" y1="50" x2="520" y2="980" class="ll"/><line x1="780" y1="50" x2="780" y2="980" class="ll"/>
+  <rect x="2" y="52" width="256" height="32" fill="#1e3a5f" rx="4"/><text x="130" y="74" class="lh" text-anchor="middle">User (Admin)</text>
+  <rect x="262" y="52" width="256" height="32" fill="#14532d" rx="4"/><text x="390" y="74" class="lh" text-anchor="middle">Aplikasi</text>
+  <rect x="522" y="52" width="256" height="32" fill="#713f12" rx="4"/><text x="650" y="74" class="lh" text-anchor="middle">Sistem</text>
+  <rect x="782" y="52" width="256" height="32" fill="#581c87" rx="4"/><text x="910" y="74" class="lh" text-anchor="middle">Database</text>
+  <text x="520" y="34" class="tl" text-anchor="middle">ACTIVITY DIAGRAM — INPUT BARANG KELUAR</text>
+
+  <!-- START -->
+  <circle cx="130" cy="105" r="9" fill="#e2e8f0"/>
+  <!-- 1 -->
+  <line x1="130" y1="114" x2="130" y2="126" class="fl" marker-end="url(#a)"/>
+  <rect x="35" y="126" width="190" height="26" rx="5" class="r1" filter="url(#s)"/>
+  <text x="130" y="143" class="ax" text-anchor="middle">Buka menu barang keluar</text>
+  <!-- 2 -->
+  <line x1="130" y1="152" x2="130" y2="168" class="fl"/><line x1="130" y1="168" x2="390" y2="168" class="fl" marker-end="url(#a)"/>
+  <rect x="275" y="168" width="230" height="26" rx="5" class="r1" filter="url(#s)"/>
+  <text x="390" y="185" class="ax" text-anchor="middle">Tampilkan form input barang keluar</text>
+  <!-- 3 -->
+  <line x1="390" y1="194" x2="390" y2="210" class="fl"/><line x1="390" y1="210" x2="130" y2="210" class="fl" marker-end="url(#a)"/>
+  <rect x="25" y="210" width="210" height="26" rx="5" class="r1" filter="url(#s)"/>
+  <text x="130" y="227" class="ax" text-anchor="middle">Input transaksi (ref_no, tgl, tujuan)</text>
+  <!-- 4 -->
+  <line x1="130" y1="236" x2="130" y2="252" class="fl" marker-end="url(#a)"/>
+  <rect x="25" y="252" width="210" height="26" rx="5" class="r1" filter="url(#s)"/>
+  <text x="130" y="269" class="ax" text-anchor="middle">Tambah item sparepart (sparepart, qty)</text>
+  <!-- 5 -->
+  <line x1="130" y1="278" x2="130" y2="294" class="fl" marker-end="url(#a)"/>
+  <rect x="45" y="294" width="170" height="26" rx="5" class="r1" filter="url(#s)"/>
+  <text x="130" y="311" class="ax" text-anchor="middle">Klik tombol simpan</text>
+  <!-- 6 -->
+  <line x1="130" y1="320" x2="130" y2="336" class="fl"/><line x1="130" y1="336" x2="650" y2="336" class="fl" marker-end="url(#a)"/>
+  <rect x="545" y="336" width="210" height="26" rx="5" class="r1" filter="url(#s)"/>
+  <text x="650" y="353" class="ax" text-anchor="middle">Validasi form input</text>
+  <!-- 7 Decision -->
+  <line x1="650" y1="362" x2="650" y2="380" class="fl" marker-end="url(#a)"/>
+  <polygon points="650,380 710,410 650,440 590,410" fill="#1e293b" stroke="#f59e0b" stroke-width="2" filter="url(#s)"/>
+  <text x="650" y="406" class="dx" text-anchor="middle">Data valid?</text>
+  <!-- NO -->
+  <line x1="710" y1="410" x2="770" y2="410" class="fn"/><text x="743" y="405" class="dn">Tidak</text>
+  <line x1="770" y1="410" x2="770" y2="181" class="fn"/><line x1="770" y1="181" x2="505" y2="181" class="fn"/>
+  <rect x="505" y="168" width="210" height="26" rx="5" class="r4" filter="url(#s)"/>
+  <text x="610" y="185" class="ax" text-anchor="middle">Tampilkan pesan error</text>
+  <line x1="505" y1="181" x2="390" y2="181" class="fn" marker-end="url(#ar)"/>
+  <!-- YES -->
+  <line x1="650" y1="440" x2="650" y2="458" class="fy" marker-end="url(#a)"/><text x="668" y="453" class="dy">Ya</text>
+  <rect x="545" y="458" width="210" height="26" rx="5" class="r1" filter="url(#s)"/>
+  <text x="650" y="475" class="ax" text-anchor="middle">Cek ketersediaan stok</text>
+  <!-- 8 Decision stok -->
+  <line x1="650" y1="484" x2="650" y2="502" class="fl" marker-end="url(#a)"/>
+  <polygon points="650,502 710,532 650,562 590,532" fill="#1e293b" stroke="#f59e0b" stroke-width="2" filter="url(#s)"/>
+  <text x="650" y="524" class="dx" text-anchor="middle">Stok cukup?</text>
+  <!-- TIDAK -->
+  <line x1="710" y1="532" x2="770" y2="532" class="fn"/><text x="743" y="527" class="dn">Tidak</text>
+  <line x1="770" y1="532" x2="770" y2="202" class="fn"/><line x1="770" y1="202" x2="505" y2="202" class="fn"/>
+  <rect x="505" y="194" width="210" height="26" rx="5" class="r4" filter="url(#s)"/>
+  <text x="610" y="211" class="ax" text-anchor="middle">Error: "Stok tidak cukup"</text>
+  <line x1="505" y1="207" x2="390" y2="207" class="fn"/><line x1="390" y1="207" x2="390" y2="194" class="fn" marker-end="url(#ar)"/>
+  <!-- CUKUP -->
+  <line x1="650" y1="562" x2="650" y2="578" class="fy" marker-end="url(#a)"/><text x="668" y="573" class="dy">Ya</text>
+  <rect x="545" y="578" width="210" height="26" rx="5" class="r1" filter="url(#s)"/>
+  <text x="650" y="595" class="ax" text-anchor="middle">Simpan header transaksi</text>
+  <!-- DB simpan header -->
+  <line x1="650" y1="604" x2="650" y2="618" class="fl"/><line x1="650" y1="618" x2="910" y2="618" class="fl" marker-end="url(#a)"/>
+  <rect x="805" y="618" width="210" height="26" rx="5" class="r3" filter="url(#s)"/>
+  <text x="910" y="635" class="ax" text-anchor="middle">Simpan header transaksi</text>
+  <!-- Sistem simpan detail -->
+  <line x1="910" y1="644" x2="910" y2="658" class="fl"/><line x1="910" y1="658" x2="650" y2="658" class="fl" marker-end="url(#a)"/>
+  <rect x="545" y="658" width="210" height="26" rx="5" class="r1" filter="url(#s)"/>
+  <text x="650" y="675" class="ax" text-anchor="middle">Simpan detail barang keluar</text>
+  <!-- DB simpan detail -->
+  <line x1="650" y1="684" x2="650" y2="698" class="fl"/><line x1="650" y1="698" x2="910" y2="698" class="fl" marker-end="url(#a)"/>
+  <rect x="805" y="698" width="210" height="26" rx="5" class="r3" filter="url(#s)"/>
+  <text x="910" y="715" class="ax" text-anchor="middle">Simpan detail barang keluar</text>
+  <!-- Sistem update stok -->
+  <line x1="910" y1="724" x2="910" y2="738" class="fl"/><line x1="910" y1="738" x2="650" y2="738" class="fl" marker-end="url(#a)"/>
+  <rect x="545" y="738" width="210" height="26" rx="5" class="r1" filter="url(#s)"/>
+  <text x="650" y="755" class="ax" text-anchor="middle">Update stok (stok -= qty)</text>
+  <!-- DB update stok -->
+  <line x1="650" y1="764" x2="650" y2="778" class="fl"/><line x1="650" y1="778" x2="910" y2="778" class="fl" marker-end="url(#a)"/>
+  <rect x="805" y="778" width="210" height="26" rx="5" class="r3" filter="url(#s)"/>
+  <text x="910" y="795" class="ax" text-anchor="middle">Update stok sparepart</text>
+  <!-- Sukses -->
+  <line x1="910" y1="804" x2="910" y2="818" class="fl"/><line x1="910" y1="818" x2="390" y2="818" class="fl" marker-end="url(#a)"/>
+  <rect x="275" y="818" width="230" height="26" rx="5" class="r2" filter="url(#s)"/>
+  <text x="390" y="835" class="ax" text-anchor="middle">Tampilkan pesan sukses</text>
+  <!-- Redirect -->
+  <line x1="390" y1="844" x2="390" y2="860" class="fl" marker-end="url(#a)"/>
+  <rect x="275" y="860" width="230" height="26" rx="5" class="r2" filter="url(#s)"/>
+  <text x="390" y="877" class="ax" text-anchor="middle">Redirect ke daftar barang keluar</text>
+  <!-- END -->
+  <line x1="390" y1="886" x2="390" y2="900" class="fl"/><line x1="390" y1="900" x2="130" y2="900" class="fl" marker-end="url(#a)"/>
+  <circle cx="130" cy="900" r="9" fill="none" stroke="#e2e8f0" stroke-width="3"/>
+</svg>

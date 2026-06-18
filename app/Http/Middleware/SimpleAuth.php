@@ -16,6 +16,18 @@ class SimpleAuth
             ]);
         }
 
+        // Cek user masih aktif
+        $authUser = $request->session()->get('auth_user');
+        $user = \App\Models\User::find($authUser['id'] ?? null);
+        if (! $user || ! $user->is_active) {
+            $request->session()->forget('auth_user');
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return redirect()->route('login')->withErrors([
+                'email' => 'Akun Anda telah dinonaktifkan. Hubungi admin.',
+            ]);
+        }
+
         return $next($request);
     }
 }

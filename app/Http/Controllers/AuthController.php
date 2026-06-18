@@ -35,13 +35,23 @@ class AuthController extends Controller
                 ->withErrors(['email' => 'Email atau password tidak sesuai.']);
         }
 
+        if (! $user->is_active) {
+            return back()
+                ->withInput($request->only('email'))
+                ->withErrors(['email' => 'Akun Anda telah dinonaktifkan. Hubungi admin.']);
+        }
+
         $request->session()->regenerate();
         $request->session()->put('auth_user', [
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
             'role' => $user->role,
-            'role_label' => $user->role === 'pimpinan' ? 'Pimpinan' : 'Admin Gudang',
+            'role_label' => match($user->role) {
+                'pimpinan' => 'Pimpinan',
+                'karyawan' => 'Karyawan/Mekanik',
+                default => 'Admin',
+            },
         ]);
 
         return redirect()->route($this->dashboardRoute($user->role));
@@ -58,6 +68,10 @@ class AuthController extends Controller
 
     private function dashboardRoute(?string $role): string
     {
-        return $role === 'pimpinan' ? 'pimpinan.dashboard' : 'admin.dashboard';
+        return match($role) {
+            'pimpinan' => 'pimpinan.dashboard',
+            'karyawan' => 'karyawan.dashboard',
+            default => 'admin.dashboard',
+        };
     }
 }

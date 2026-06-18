@@ -21,6 +21,15 @@
     </div>
 @endif
 
+@if($pendingCount > 0)
+<div class="alert alert-warning d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        <strong>{{ $pendingCount }} permintaan</strong> dari karyawan menunggu diproses.
+    </div>
+</div>
+@endif
+
 {{-- Table --}}
 <div class="modern-card">
     <div class="modern-card-header">
@@ -33,13 +42,14 @@
                     <tr>
                         <th class="ps-4" style="width:50px">No</th>
                         <th>Tanggal</th>
-                        <th>Waktu</th>
+                        <th class="hide-md">Waktu</th>
                         <th>No Referensi</th>
-                        <th>Tujuan</th>
+                        <th class="hide-sm">Tujuan</th>
                         <th>Sparepart</th>
                         <th class="text-center">Jumlah Keluar</th>
-                        <th>Keterangan</th>
-                        <th>User</th>
+                        <th class="hide-md">Keterangan</th>
+                        <th>Status</th>
+                        <th class="hide-sm">User</th>
                         <th class="text-center pe-4">Aksi</th>
                     </tr>
                 </thead>
@@ -48,20 +58,40 @@
                         @foreach($transaction->details as $detail)
                             <tr>
                                 @if($loop->first)
-                                    <td rowspan="{{ $transaction->details->count() }}" class="ps-4 text-muted">{{ ($transactions->currentPage() - 1) * $transactions->perPage() + $loop->parent->iteration }}</td>
+                                    <td rowspan="{{ $transaction->details->count() }}" class="ps-4 text-muted hide-sm">{{ ($transactions->currentPage() - 1) * $transactions->perPage() + $loop->parent->iteration }}</td>
                                     <td rowspan="{{ $transaction->details->count() }}">{{ $transaction->date->format('d M Y') }}</td>
-                                    <td rowspan="{{ $transaction->details->count() }}">{{ \Carbon\Carbon::parse($transaction->time)->format('H:i') }}</td>
+                                    <td rowspan="{{ $transaction->details->count() }}" class="hide-md">{{ \Carbon\Carbon::parse($transaction->time)->format('H:i') }}</td>
                                     <td rowspan="{{ $transaction->details->count() }}">
                                         <span class="fw-semibold">{{ $transaction->reference_no }}</span>
                                     </td>
-                                    <td rowspan="{{ $transaction->details->count() }}">{{ $transaction->purpose }}</td>
+                                    <td rowspan="{{ $transaction->details->count() }}" class="hide-sm">{{ $transaction->purpose }}</td>
                                 @endif
                                 <td>{{ $detail->sparepart->name }}</td>
                                 <td class="text-center">{{ $detail->quantity }} {{ $detail->sparepart->unit }}</td>
                                 @if($loop->first)
-                                    <td rowspan="{{ $transaction->details->count() }}">{{ $transaction->notes ?? '-' }}</td>
-                                    <td rowspan="{{ $transaction->details->count() }}">{{ $transaction->user->name }}</td>
+                                    <td rowspan="{{ $transaction->details->count() }}" class="hide-md">
+                                        {{ $transaction->notes ?? '-' }}
+                                        @if($transaction->requester)
+                                            <br><small class="text-muted">Diminta: {{ $transaction->requester->name }}</small>
+                                        @endif
+                                    </td>
+                                    <td rowspan="{{ $transaction->details->count() }}">
+                                        @if($transaction->status === 'pending')
+                                            <span class="badge bg-warning text-dark">Menunggu</span>
+                                        @else
+                                            <span class="badge bg-success">Diproses</span>
+                                        @endif
+                                    </td>
+                                    <td rowspan="{{ $transaction->details->count() }}" class="hide-sm">{{ $transaction->user->name }}</td>
                                     <td rowspan="{{ $transaction->details->count() }}" class="text-center pe-4">
+                                        @if($transaction->status === 'pending')
+                                            <form action="{{ route('admin.barang-keluar.process', $transaction) }}" method="POST" class="d-inline" onsubmit="return confirm('Proses permintaan ini?')">
+                                                @csrf
+                                                <button type="submit" class="btn btn-sm btn-success" title="Proses">
+                                                    <i class="bi bi-check-circle"></i>
+                                                </button>
+                                            </form>
+                                        @endif
                                         <a href="{{ route('admin.barang-keluar.edit', $transaction) }}" class="btn btn-sm btn-outline-warning" title="Edit">
                                             <i class="bi bi-pencil-square"></i>
                                         </a>

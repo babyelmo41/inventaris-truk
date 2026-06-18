@@ -14,6 +14,8 @@ class BarangMasuk extends Model
         'time',
         'supplier_id',
         'user_id',
+        'status',
+        'approved_by',
         'notes',
     ];
 
@@ -37,5 +39,11 @@ class BarangMasuk extends Model
     public function details()
     {
         return $this->hasMany(DetailBarangMasuk::class);
+    }
+
+    // Relasi: pimpinan yang menyetujui barang masuk
+    public function approver()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
     }
 }

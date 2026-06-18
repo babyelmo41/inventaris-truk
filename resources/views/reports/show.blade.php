@@ -11,7 +11,7 @@
         <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
             <div class="d-flex gap-2 justify-content-lg-end position-relative" style="z-index:1">
                 @if(count($report['rows']) > 0)
-                <button onclick="window.print()" class="btn btn-light"><i class="bi bi-printer me-2"></i>Cetak</button>
+                <button onclick="window.open('{{ route('reports.print', array_merge(['type' => $type], request()->query())) }}', '_blank')" class="btn btn-light"><i class="bi bi-printer me-2"></i>Cetak</button>
                 <a href="{{ route('reports.pdf', array_merge(['type' => $type], request()->query())) }}" class="btn btn-danger"><i class="bi bi-file-earmark-pdf me-2"></i>Download PDF</a>
                 @endif
                 <a href="{{ url()->previous() }}" class="btn btn-outline-light"><i class="bi bi-arrow-left me-2"></i>Kembali</a>
@@ -33,13 +33,28 @@
                     <label class="form-label fw-semibold text-muted small">Period</label>
                     <select id="periodSelect" class="form-select form-select-lg">
                         <option value="" {{ !request()->has('date') && !request()->has('date_from') && !request()->has('month') ? 'selected' : '' }}>-- Pilih Period --</option>
-                        <option value="today" {{ request()->has('date') && request()->date === now()->toDateString() ? 'selected' : '' }}>Hari Ini</option>
-                        <option value="yesterday" {{ request()->has('date') && request()->date === now()->subDay()->toDateString() ? 'selected' : '' }}>Kemarin</option>
-                        <option value="this_week" {{ request()->has('month') ? '' : '' }}>Pekan Ini</option>
-                        <option value="last_week">Pekan Lalu</option>
-                        <option value="this_month" {{ request()->has('month') && request()->month === now()->format('Y-m') ? 'selected' : '' }}>Bulan Ini</option>
-                        <option value="last_month" {{ request()->has('month') && request()->month === now()->subMonth()->format('Y-m') ? 'selected' : '' }}>Bulan Lalu</option>
-                        <option value="custom" {{ request()->has('date_from') || (request()->has('date') && request()->date !== now()->toDateString() && request()->date !== now()->subDay()->toDateString()) ? 'selected' : '' }}>Rentang Kustom</option>
+                        @php
+                            $periodLabels = [
+                                'today' => 'Hari Ini',
+                                'yesterday' => 'Kemarin',
+                                'this_week' => 'Pekan Ini',
+                                'last_week' => 'Pekan Lalu',
+                                'this_month' => 'Bulan Ini',
+                                'last_month' => 'Bulan Lalu',
+                                'custom' => 'Rentang Kustom',
+                            ];
+                        @endphp
+                        @foreach($periodLabels as $key => $label)
+                            @if(in_array($key, $allowed_periods))
+                            @php
+                                $isSelected = false;
+                                if ($key === 'this_month' && request()->month === now()->format('Y-m')) $isSelected = true;
+                                elseif ($key === 'last_month' && request()->month === now()->subMonth()->format('Y-m')) $isSelected = true;
+                                elseif ($key === 'custom' && (request()->date_from || request()->date_to)) $isSelected = true;
+                            @endphp
+                            <option value="{{ $key }}" {{ $isSelected ? 'selected' : '' }}>{{ $label }}</option>
+                            @endif
+                        @endforeach
                     </select>
                 </div>
                 <div class="col-md-2" id="dateSingleWrap" style="display:none">
@@ -228,95 +243,16 @@ periodSelect.addEventListener('change', function() {
 @endif
 
 <style>
-    /* Dark Header */
-    .report-header {
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-        border-radius: 16px;
-        padding: 2rem;
-        position: relative;
-        overflow: hidden;
-    }
-    .report-header::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -20%;
-        width: 400px;
-        height: 400px;
-        background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
-        border-radius: 50%;
-        pointer-events: none;
-    }
-    .report-header::after {
-        content: '';
-        position: absolute;
-        bottom: -30%;
-        right: 10%;
-        width: 200px;
-        height: 200px;
-        background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, transparent 70%);
-        border-radius: 50%;
-        pointer-events: none;
+    /* Report-specific hover */
+    .report-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.08);
     }
 
-    /* Card Style */
-    .report-card {
-        background: #fff;
-        border-radius: 16px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
-        overflow: hidden;
-    }
-    .report-card-header {
-        background: #f8fafc;
-        padding: 1rem 1.5rem;
-        border-bottom: 1px solid #e2e8f0;
-    }
-    .report-card-body {
-        padding: 1.5rem;
-    }
-    .report-card-footer {
-        background: #f8fafc;
-        padding: 0.75rem 1.5rem;
-        border-top: 1px solid #e2e8f0;
-        font-size: 0.85rem;
-    }
-
-    /* Table Header */
-    .report-card table thead tr {
-        background: #f1f5f9;
-    }
-    .report-card table thead th {
-        font-weight: 600;
-        color: #475569;
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        padding: 0.85rem 1rem;
-        border-bottom: 2px solid #e2e8f0;
-    }
-
-    /* Table Body */
-    .report-card table tbody td {
-        padding: 0.8rem 1rem;
-        color: #334155;
-        font-size: 0.9rem;
-        border-bottom: 1px solid #f1f5f9;
-    }
-    .report-card table tbody tr:hover {
-        background: #f8fafc;
-    }
-
-    /* Badge Rounded Pill */
-    .badge.rounded-pill {
-        padding: 0.4em 0.8em;
-        font-size: 0.78rem;
-    }
+    /* Badge helper classes */
     .bg-success-subtle { background-color: #dcfce7 !important; }
-    .text-success { color: #16a34a !important; }
     .bg-warning-subtle { background-color: #fef9c3 !important; }
-    .text-warning { color: #ca8a04 !important; }
     .bg-danger-subtle { background-color: #fee2e2 !important; }
-    .text-danger { color: #dc2626 !important; }
 
     /* Form Control */
     .form-control-lg, .form-select-lg {

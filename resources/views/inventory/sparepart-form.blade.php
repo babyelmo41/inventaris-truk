@@ -29,7 +29,7 @@
         <div class="row">
             <div class="col-md-6 mb-3">
                 <label for="code" class="form-label fw-semibold">Kode Barang <span class="text-danger">*</span></label>
-                <input type="text" class="form-control @error('code') is-invalid @enderror" id="code" name="code" value="{{ old('code', $sparepart->code ?? '') }}" placeholder="Contoh: SP-019" required>
+                <input type="text" class="form-control @error('code') is-invalid @enderror" id="code" name="code" value="{{ old('code', $sparepart->code ?? $generatedCode ?? '') }}" {{ $sparepart ? '' : 'readonly' }} required>
                 @error('code')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror

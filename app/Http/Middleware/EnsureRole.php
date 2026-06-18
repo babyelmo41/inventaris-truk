@@ -8,12 +8,16 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EnsureRole
 {
-    public function handle(Request $request, Closure $next, string $role): Response
+    public function handle(Request $request, Closure $next, string ...$roles): Response
     {
         $user = $request->session()->get('auth_user');
 
-        if (! $user || ($user['role'] ?? null) !== $role) {
-            $route = ($user['role'] ?? null) === 'pimpinan' ? 'pimpinan.dashboard' : 'admin.dashboard';
+        if (! $user || !in_array($user['role'] ?? null, $roles)) {
+            $route = match($user['role'] ?? null) {
+                'pimpinan' => 'pimpinan.dashboard',
+                'karyawan' => 'karyawan.dashboard',
+                default => 'admin.dashboard',
+            };
 
             return redirect()->route($route);
         }

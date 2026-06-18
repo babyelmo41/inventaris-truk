@@ -31,13 +31,13 @@
             <table class="table table-hover align-middle mb-0">
                 <thead>
                     <tr>
-                        <th class="ps-4" style="width:50px">No</th>
-                        <th>Kode</th>
+                        <th class="ps-4 hide-sm" style="width:50px">No</th>
+                        <th class="hide-md">Kode</th>
                         <th>Nama Sparepart</th>
-                        <th>Kategori</th>
-                        <th>Supplier</th>
+                        <th class="hide-md">Kategori</th>
+                        <th class="hide-sm">Supplier</th>
                         <th class="text-center">Stok</th>
-                        <th class="text-center">Min. Stok</th>
+                        <th class="text-center hide-md">Min. Stok</th>
                         <th class="text-center">Status</th>
                         <th class="text-end pe-4">Aksi</th>
                     </tr>
@@ -45,13 +45,13 @@
                 <tbody>
                     @forelse($spareparts as $sparepart)
                         <tr>
-                            <td class="ps-4 text-muted">{{ ($spareparts->currentPage() - 1) * $spareparts->perPage() + $loop->iteration }}</td>
-                            <td class="fw-semibold">{{ $sparepart->code }}</td>
+                            <td class="ps-4 text-muted hide-sm">{{ ($spareparts->currentPage() - 1) * $spareparts->perPage() + $loop->iteration }}</td>
+                            <td class="fw-semibold hide-md">{{ $sparepart->code }}</td>
                             <td>{{ $sparepart->name }}</td>
-                            <td>{{ $sparepart->category->name }}</td>
-                            <td>{{ $sparepart->supplier->name }}</td>
+                            <td class="hide-md">{{ $sparepart->category->name }}</td>
+                            <td class="hide-sm">{{ $sparepart->supplier->name }}</td>
                             <td class="text-center">{{ $sparepart->stock }} {{ $sparepart->unit }}</td>
-                            <td class="text-center">{{ $sparepart->min_stock }}</td>
+                            <td class="text-center hide-md">{{ $sparepart->min_stock }}</td>
                             <td class="text-center">
                                 @if($sparepart->stock <= 0)
                                     <span class="badge-status habis"><i class="bi bi-x-circle me-1"></i>Habis</span>

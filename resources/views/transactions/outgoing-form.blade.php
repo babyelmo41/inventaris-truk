@@ -44,7 +44,7 @@
             </div>
             <div class="col-md-3 mb-3">
                 <label for="reference_no" class="form-label fw-semibold">No Referensi <span class="text-danger">*</span></label>
-                <input type="text" class="form-control @error('reference_no') is-invalid @enderror" id="reference_no" name="reference_no" value="{{ old('reference_no', $transaction->reference_no ?? '') }}" placeholder="Contoh: REF-2024-001" required>
+                <input type="text" class="form-control @error('reference_no') is-invalid @enderror" id="reference_no" name="reference_no" value="{{ old('reference_no', $transaction->reference_no ?? $generatedReferenceNo ?? '') }}" {{ $transaction ? '' : 'readonly' }} required>
                 @error('reference_no')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -55,6 +55,24 @@
                 @error('purpose')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6 mb-3">
+                <label for="truck_name" class="form-label fw-semibold">Tujuan Truk</label>
+                <input type="text" class="form-control @error('truck_name') is-invalid @enderror" id="truck_name" name="truck_name" value="{{ old('truck_name', $transaction->truck_name ?? '') }}" placeholder="Contoh: Truk DT-014">
+                @error('truck_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="requested_by" class="form-label fw-semibold">Diminta Oleh (Karyawan/Mekanik)</label>
+                <select class="form-select @error('requested_by') is-invalid @enderror" id="requested_by" name="requested_by">
+                    <option value="">-- Pilih --</option>
+                    @foreach(\App\Models\User::where('role', '!=', 'admin')->get() as $user)
+                        <option value="{{ $user->id }}" {{ old('requested_by', $transaction->requested_by ?? '') == $user->id ? 'selected' : '' }}>{{ $user->name }} ({{ $user->role }})</option>
+                    @endforeach
+                </select>
+                @error('requested_by')<div class="invalid-feedback">{{ $message }}</div>@enderror
             </div>
         </div>
 

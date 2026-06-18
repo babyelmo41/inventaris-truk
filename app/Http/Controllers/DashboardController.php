@@ -24,6 +24,7 @@ class DashboardController extends Controller
             'stats' => [
                 ['label' => 'Total Jenis Sparepart', 'value' => Sparepart::count(), 'icon' => 'bi-box-seam', 'tone' => 'primary'],
                 ['label' => 'Stok Hampir Habis', 'value' => Sparepart::whereColumn('stock', '<=', 'min_stock')->where('stock', '>', 0)->count(), 'icon' => 'bi-exclamation-triangle', 'tone' => 'warning'],
+                ['label' => 'Stok Habis', 'value' => Sparepart::where('stock', '<=', 0)->count(), 'icon' => 'bi-x-octagon', 'tone' => 'danger'],
                 ['label' => 'Barang Masuk Hari Ini', 'value' => BarangMasuk::whereDate('date', $today)->count(), 'icon' => 'bi-arrow-down-circle', 'tone' => 'success'],
                 ['label' => 'Barang Keluar Hari Ini', 'value' => BarangKeluar::whereDate('date', $today)->count(), 'icon' => 'bi-arrow-up-circle', 'tone' => 'danger'],
             ],
@@ -32,7 +33,7 @@ class DashboardController extends Controller
                 'hampir_habis' => $stokHampirHabis,
                 'habis' => $stokHabis,
             ],
-            'activities' => BarangMasuk::with(['supplier', 'user'])
+            'activities' => BarangMasuk::with(['supplier', 'user', 'details.sparepart'])
                 ->latest('date')
                 ->latest('time')
                 ->limit(3)
@@ -45,12 +46,15 @@ class DashboardController extends Controller
                         'code' => $masuk->invoice_no,
                         'item' => $masuk->details->first()?->sparepart?->name ?? '-',
                         'type' => 'Barang Masuk',
+                        'type_badge' => 'success',
+                        'type_icon' => 'bi-arrow-down-circle',
                         'qty' => $masuk->details->sum('quantity'),
                         'user' => $masuk->user->name,
+                        'info' => $masuk->supplier->name ?? '-',
                     ];
                 })
                 ->merge(
-                    BarangKeluar::with(['user'])
+                    BarangKeluar::with(['user', 'details.sparepart'])
                         ->latest('date')
                         ->latest('time')
                         ->limit(3)
@@ -63,8 +67,11 @@ class DashboardController extends Controller
                                 'code' => $keluar->reference_no,
                                 'item' => $keluar->details->first()?->sparepart?->name ?? '-',
                                 'type' => 'Barang Keluar',
+                                'type_badge' => 'danger',
+                                'type_icon' => 'bi-arrow-up-circle',
                                 'qty' => $keluar->details->sum('quantity'),
                                 'user' => $keluar->user->name,
+                                'info' => $keluar->truck_name ?? '-',
                             ];
                         })
                 )

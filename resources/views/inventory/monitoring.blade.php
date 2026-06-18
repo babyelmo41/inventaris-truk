@@ -47,24 +47,24 @@
             <table class="table table-hover align-middle mb-0" id="monitoringTable">
                 <thead>
                     <tr>
-                        <th class="ps-4">Kode Barang</th>
+                        <th class="ps-4 hide-md">Kode Barang</th>
                         <th>Nama Barang</th>
-                        <th>Kategori</th>
-                        <th>Supplier</th>
+                        <th class="hide-md">Kategori</th>
+                        <th class="hide-sm">Supplier</th>
                         <th class="text-center">Stok Saat Ini</th>
-                        <th class="text-center">Stok Minimum</th>
+                        <th class="text-center hide-md">Stok Minimum</th>
                         <th class="text-center">Status</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($spareparts as $item)
                         <tr>
-                            <td class="ps-4 fw-semibold">{{ $item->code }}</td>
+                            <td class="ps-4 fw-semibold hide-md">{{ $item->code }}</td>
                             <td>{{ $item->name }}</td>
-                            <td>{{ $item->category->name }}</td>
-                            <td>{{ $item->supplier->name }}</td>
+                            <td class="hide-md">{{ $item->category->name }}</td>
+                            <td class="hide-sm">{{ $item->supplier->name }}</td>
                             <td class="text-center">{{ $item->stock }} {{ $item->unit }}</td>
-                            <td class="text-center">{{ $item->min_stock }}</td>
+                            <td class="text-center hide-md">{{ $item->min_stock }}</td>
                             <td class="text-center">
                                 @if($item->stock <= 0)
                                     <span class="badge-status habis"><i class="bi bi-x-circle me-1"></i>Habis</span>
