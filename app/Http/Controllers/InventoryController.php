@@ -346,6 +346,8 @@ class InventoryController extends Controller
             'time' => $request->time,
             'supplier_id' => $request->supplier_id,
             'user_id' => $request->session()->get('auth_user.id'),
+            'status' => 'approved',
+            'approved_by' => $request->session()->get('auth_user.id'),
             'notes' => $request->notes,
         ]);
 
