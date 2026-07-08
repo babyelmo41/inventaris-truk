@@ -30,7 +30,7 @@
                 <thead>
                     <tr>
                         <th class="ps-4 hide-sm" style="width:50px">No</th>
-                        <th>Tanggal</th>
+                        <th>Tanggal & Waktu</th>
                         <th class="hide-md">No Permintaan</th>
                         <th class="hide-sm">Keperluan</th>
                         <th class="hide-md">Truk</th>
@@ -43,7 +43,7 @@
                     @forelse($permintaan as $i => $p)
                         <tr>
                             <td class="ps-4 text-muted hide-sm">{{ ($permintaan->currentPage() - 1) * $permintaan->perPage() + $i + 1 }}</td>
-                            <td>{{ $p->date->format('d M Y') }}</td>
+                            <td>{{ $p->date->format('d M Y') }} {{ \Carbon\Carbon::parse($p->time)->format('H:i') }}</td>
                             <td class="hide-md"><span class="fw-semibold">{{ $p->reference_no }}</span></td>
                             <td class="hide-sm">{{ $p->purpose }}</td>
                             <td class="hide-md">{{ $p->truck_name ?: '-' }}</td>

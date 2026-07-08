@@ -310,7 +310,7 @@ class InventoryController extends Controller
     {
         return view('transactions.incoming', [
             'title' => 'Barang Masuk',
-            'transactions' => BarangMasuk::with(['supplier', 'user', 'details.sparepart'])->latest('date')->paginate(10),
+            'transactions' => BarangMasuk::with(['supplier', 'user', 'details.sparepart'])->latest('date')->latest('created_at')->paginate(10),
             'suppliers' => Supplier::all(),
         ]);
     }
@@ -440,7 +440,7 @@ class InventoryController extends Controller
     {
         return view('transactions.outgoing', [
             'title' => 'Barang Keluar',
-            'transactions' => BarangKeluar::with(['user', 'requester', 'details.sparepart'])->latest('date')->paginate(10),
+            'transactions' => BarangKeluar::with(['user', 'requester', 'details.sparepart'])->latest('date')->latest('created_at')->paginate(10),
             'pendingCount' => BarangKeluar::where('status', 'pending')->count(),
         ]);
     }

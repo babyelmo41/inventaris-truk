@@ -45,7 +45,8 @@ class KaryawanController extends Controller
 
         $permintaan = BarangKeluar::where('requested_by', $userId)
             ->with('details.sparepart')
-            ->latest()
+            ->latest('date')
+            ->latest('created_at')
             ->paginate(10);
 
         return view('karyawan.permintaan-index', [

@@ -21,11 +21,12 @@ class PengajuanPembelianController extends Controller
         $isPimpinan = $user && ($user['role'] ?? null) === 'pimpinan';
 
         if ($isPimpinan) {
-            $pengajuan = PengajuanPembelian::with(['user', 'details.sparepart'])->latest('date')->get();
+            $pengajuan = PengajuanPembelian::with(['user', 'details.sparepart'])->latest('date')->latest('created_at')->get();
         } else {
             $pengajuan = PengajuanPembelian::with(['user', 'details.sparepart'])
                 ->where('user_id', $user['id'])
                 ->latest('date')
+                ->latest('created_at')
                 ->get();
         }
 

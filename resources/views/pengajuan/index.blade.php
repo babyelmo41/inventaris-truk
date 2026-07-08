@@ -32,7 +32,7 @@
                 <thead>
                     <tr>
                         <th class="ps-4 hide-sm" style="width:50px">No</th>
-                        <th>Tanggal</th>
+                        <th>Tanggal & Waktu</th>
                         <th class="hide-md">No Pengajuan</th>
                         <th class="hide-sm">Diajukan Oleh</th>
                         <th>Status</th>
@@ -46,7 +46,7 @@
                     @forelse($pengajuan as $i => $p)
                         <tr>
                             <td class="ps-4 text-muted hide-sm">{{ $i + 1 }}</td>
-                            <td>{{ $p->date->format('d M Y') }}</td>
+                            <td>{{ $p->date->format('d M Y') }} {{ $p->created_at->format('H:i') }}</td>
                             <td class="hide-md"><span class="fw-semibold">{{ $p->ajuan_no }}</span></td>
                             <td class="hide-sm">{{ $p->user->name }}</td>
                             <td>
