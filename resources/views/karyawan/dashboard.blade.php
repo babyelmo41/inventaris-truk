@@ -36,9 +36,9 @@
     <div class="col-md-3">
         <div class="metric-card p-4">
             <div class="d-flex align-items-center gap-3">
-                <div class="metric-icon bg-success bg-opacity-10 text-success"><i class="bi bi-check-circle"></i></div>
+                <div class="metric-icon bg-info bg-opacity-10 text-info"><i class="bi bi-gear"></i></div>
                 <div>
-                    <div class="small text-secondary">Sudah Diproses</div>
+                    <div class="small text-secondary">Sedang Diproses</div>
                     <div class="h4 fw-bold mb-0">{{ $stats['processed'] }}</div>
                 </div>
             </div>
@@ -47,10 +47,10 @@
     <div class="col-md-3">
         <div class="metric-card p-4">
             <div class="d-flex align-items-center gap-3">
-                <div class="metric-icon bg-danger bg-opacity-10 text-danger"><i class="bi bi-x-circle"></i></div>
+                <div class="metric-icon bg-success bg-opacity-10 text-success"><i class="bi bi-check-circle"></i></div>
                 <div>
-                    <div class="small text-secondary">Ditolak</div>
-                    <div class="h4 fw-bold mb-0">{{ $stats['rejected'] }}</div>
+                    <div class="small text-secondary">Selesai</div>
+                    <div class="h4 fw-bold mb-0">{{ $stats['completed'] }}</div>
                 </div>
             </div>
         </div>
@@ -76,8 +76,8 @@
                         <td>{{ $p->details->count() }} item</td>
                         <td>
                             @if($p->status === 'pending')<span class="badge bg-warning text-dark">Menunggu</span>
-                            @elseif($p->status === 'processed')<span class="badge bg-success">Diproses</span>
-                            @else<span class="badge bg-danger">Ditolak</span>
+                            @elseif($p->status === 'processed')<span class="badge bg-info">Diproses</span>
+                            @elseif($p->status === 'completed')<span class="badge bg-success">Selesai</span>
                             @endif
                         </td>
                     </tr>
