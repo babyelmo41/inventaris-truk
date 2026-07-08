@@ -23,6 +23,7 @@ class KaryawanController extends Controller
             'pending' => BarangKeluar::where('requested_by', $userId)->where('status', 'pending')->count(),
             'processed' => BarangKeluar::where('requested_by', $userId)->where('status', 'processed')->count(),
             'completed' => BarangKeluar::where('requested_by', $userId)->where('status', 'completed')->count(),
+            'rejected' => BarangKeluar::where('requested_by', $userId)->where('status', 'rejected')->count(),
         ];
 
         $latest = BarangKeluar::where('requested_by', $userId)
@@ -69,6 +70,8 @@ class KaryawanController extends Controller
             'purpose' => 'required|string|max:255',
             'truck_name' => 'nullable|string|max:255',
             'notes' => 'nullable|string|max:500',
+            'date' => 'required|date',
+            'time' => 'required',
             'items' => 'required|array|min:1',
             'items.*.sparepart_id' => 'required|exists:spareparts,id',
             'items.*.quantity' => 'required|integer|min:1',
@@ -87,8 +90,8 @@ class KaryawanController extends Controller
 
         $permintaan = BarangKeluar::create([
             'reference_no' => $request->reference_no,
-            'date' => now()->toDateString(),
-            'time' => now()->format('H:i'),
+            'date' => $request->date,
+            'time' => $request->time,
             'purpose' => $request->purpose,
             'user_id' => $request->session()->get('auth_user.id'),
             'requested_by' => $request->session()->get('auth_user.id'),
@@ -98,7 +101,7 @@ class KaryawanController extends Controller
         ]);
 
         foreach ($request->items as $index => $item) {
-            // Compress & simpan foto before
+            // Compress & simpan foto pengajuan
             $beforePhotoPath = $this->compressAndStore(
                 $item['before_photo'],
                 'photos/before'
@@ -127,7 +130,7 @@ class KaryawanController extends Controller
     }
 
     /**
-     * Upload foto after untuk item tertentu
+     * Upload foto bukti pemasangan untuk item tertentu
      */
     public function uploadAfterPhoto(Request $request, BarangKeluar $permintaan, DetailBarangKeluar $detail): RedirectResponse
     {
@@ -149,7 +152,7 @@ class KaryawanController extends Controller
             Storage::disk('public')->delete($detail->after_photo);
         }
 
-        // Compress & simpan foto after
+        // Compress & simpan foto bukti pemasangan
         $afterPhotoPath = $this->compressAndStore(
             $request->file('after_photo'),
             'photos/after'
@@ -165,7 +168,7 @@ class KaryawanController extends Controller
             $permintaan->update(['status' => 'completed']);
         }
 
-        return back()->with('success', 'Foto after berhasil diupload untuk ' . $detail->sparepart->name . '!');
+        return back()->with('success', 'Foto bukti pemasangan berhasil diupload untuk ' . $detail->sparepart->name . '!');
     }
 
     public function katalog(): View

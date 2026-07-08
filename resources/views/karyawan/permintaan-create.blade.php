@@ -5,7 +5,7 @@
     <div class="d-flex flex-wrap gap-3 align-items-center justify-content-between mb-4">
         <div>
             <h2 class="h5 fw-bold mb-1">{{ $title }}</h2>
-            <div class="text-secondary">Ajukan permintaan sparepart. Sertakan foto bukti kondisi truk sebelum perbaikan (before).</div>
+            <div class="text-secondary">Ajukan permintaan sparepart. Sertakan foto pengajuan bukti kondisi truk sebelum perbaikan.</div>
         </div>
         <a href="{{ route('karyawan.permintaan.index') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i>Kembali</a>
     </div>
@@ -18,6 +18,10 @@
 
     <form action="{{ route('karyawan.permintaan.store') }}" method="POST" id="permintaanForm" enctype="multipart/form-data">
         @csrf
+
+        {{-- Hidden fields: date & time dari device user --}}
+        <input type="hidden" name="date" id="clientDate">
+        <input type="hidden" name="time" id="clientTime">
 
         <div class="row mb-4">
             <div class="col-md-4 mb-3">
@@ -47,7 +51,7 @@
 
         <h5 class="fw-bold mb-3"><i class="bi bi-list-check me-2"></i>Item yang Diminta</h5>
         <div class="alert alert-info mb-3">
-            <i class="bi bi-camera me-2"></i><strong>Setiap item wajib dilengkapi foto before</strong> — foto bukti kondisi truk/sparepart sebelum perbaikan. Bisa ambil dari kamera langsung atau pilih dari galeri.
+            <i class="bi bi-camera me-2"></i><strong>Setiap item wajib dilengkapi foto pengajuan</strong> — foto bukti kondisi truk/sparepart sebelum perbaikan. Bisa ambil dari kamera langsung atau pilih dari galeri.
         </div>
 
         @error('items')<div class="alert alert-danger">{{ $message }}</div>@enderror
@@ -60,7 +64,7 @@
                         <th style="width: 10%">Stok</th>
                         <th style="width: 10%">Jumlah <span class="text-danger">*</span></th>
                         <th style="width: 8%">Satuan</th>
-                        <th style="width: 32%">Foto Before <span class="text-danger">*</span></th>
+                        <th style="width: 32%">Foto Pengajuan <span class="text-danger">*</span></th>
                         <th style="width: 10%">Aksi</th>
                     </tr>
                 </thead>
@@ -100,6 +104,16 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Set date & time dari device user
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    document.getElementById('clientDate').value = `${year}-${month}-${day}`;
+    document.getElementById('clientTime').value = `${hours}:${minutes}`;
+
     let rowIndex = 1;
     const sparepartOptions = `<option value="">-- Pilih Sparepart --</option>
         @foreach($spareparts as $sp)\n            <option value="{{ $sp->id }}" data-stock="{{ $sp->stock }}" data-unit="{{ $sp->unit }}" {{ $sp->stock <= 0 ? 'disabled' : '' }}>{{ $sp->code }} - {{ $sp->name }} ({{ $sp->stock <= 0 ? 'HABIS' : $sp->stock . ' ' . $sp->unit }})</option>\n        @endforeach`;

@@ -52,8 +52,9 @@
                                 @if($p->status === 'pending')<span class="badge bg-warning text-dark">Menunggu</span>
                                 @elseif($p->status === 'processed')
                                     <span class="badge bg-info">Diproses</span>
-                                    <div class="small text-muted mt-1">Foto after: {{ $p->completionProgress() }}</div>
+                                    <div class="small text-muted mt-1">Pemasangan: {{ $p->completionProgress() }}</div>
                                 @elseif($p->status === 'completed')<span class="badge bg-success">Selesai</span>
+                                @elseif($p->status === 'rejected')<span class="badge bg-danger">Ditolak</span>
                                 @endif
                             </td>
                             <td class="text-center pe-4">

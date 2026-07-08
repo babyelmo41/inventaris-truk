@@ -584,6 +584,9 @@ class InventoryController extends Controller
     // Proses permintaan dari karyawan (ubah status pending → processed)
     public function outgoingProcess(BarangKeluar $transaction): RedirectResponse
     {
+        // Hanya bisa proses permintaan dari karyawan
+        abort_unless($transaction->requested_by, 400, 'Hanya permintaan dari karyawan yang bisa diproses.');
+
         // Kurangi stok sparepart untuk setiap item dalam permintaan
         foreach ($transaction->details as $detail) {
             Sparepart::where('id', $detail->sparepart_id)->decrement('stock', $detail->quantity);
@@ -596,6 +599,22 @@ class InventoryController extends Controller
             'status' => 'processed',
         ]);
 
-        return redirect()->route('admin.barang-keluar')->with('success', "Permintaan {$transaction->reference_no} berhasil diproses! Karyawan bisa upload foto after.");
+        return redirect()->route('admin.barang-keluar')->with('success', "Permintaan {$transaction->reference_no} berhasil diproses! Karyawan bisa upload foto bukti pemasangan.");
+    }
+
+    // Tolak permintaan dari karyawan (ubah status pending → rejected)
+    public function outgoingReject(BarangKeluar $transaction): RedirectResponse
+    {
+        // Hanya bisa tolak permintaan dari karyawan
+        abort_unless($transaction->requested_by, 400, 'Hanya permintaan dari karyawan yang bisa ditolak.');
+
+        // Hanya bisa tolak yang masih pending
+        abort_unless($transaction->status === 'pending', 400, 'Hanya permintaan yang masih menunggu yang bisa ditolak.');
+
+        $transaction->update([
+            'status' => 'rejected',
+        ]);
+
+        return redirect()->route('admin.barang-keluar')->with('success', "Permintaan {$transaction->reference_no} ditolak.");
     }
 }

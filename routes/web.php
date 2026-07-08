@@ -73,6 +73,7 @@ Route::middleware('simple.auth')->group(function () {
         Route::put('/barang-keluar/{transaction}', [InventoryController::class, 'outgoingUpdate'])->name('barang-keluar.update');
         Route::delete('/barang-keluar/{transaction}', [InventoryController::class, 'outgoingDestroy'])->name('barang-keluar.destroy');
         Route::post('/barang-keluar/{transaction}/process', [InventoryController::class, 'outgoingProcess'])->name('barang-keluar.process');
+        Route::post('/barang-keluar/{transaction}/reject', [InventoryController::class, 'outgoingReject'])->name('barang-keluar.reject');
 
         // Reports
         Route::get('/laporan', [ReportController::class, 'index'])->name('reports.index');

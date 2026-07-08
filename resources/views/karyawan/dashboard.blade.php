@@ -78,6 +78,7 @@
                             @if($p->status === 'pending')<span class="badge bg-warning text-dark">Menunggu</span>
                             @elseif($p->status === 'processed')<span class="badge bg-info">Diproses</span>
                             @elseif($p->status === 'completed')<span class="badge bg-success">Selesai</span>
+                            @elseif($p->status === 'rejected')<span class="badge bg-danger">Ditolak</span>
                             @endif
                         </td>
                     </tr>

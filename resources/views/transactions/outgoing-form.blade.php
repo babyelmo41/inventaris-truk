@@ -165,6 +165,24 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Set date & time dari device user (hanya untuk form baru)
+    @if(!$transaction)
+    const now = new Date();
+    const dateInput = document.getElementById('date');
+    const timeInput = document.getElementById('time');
+    if (dateInput && !dateInput.value) {
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        dateInput.value = `${year}-${month}-${day}`;
+    }
+    if (timeInput) {
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        timeInput.value = `${hours}:${minutes}`;
+    }
+    @endif
+
     let rowIndex = {{ $transaction ? $transaction->details->count() : 1 }};
     const sparepartOptions = `<option value="">-- Pilih --</option>
         @foreach($spareparts as $sparepart)

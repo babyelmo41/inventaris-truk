@@ -47,7 +47,7 @@
                         <th class="hide-sm">Tujuan</th>
                         <th>Sparepart</th>
                         <th class="text-center">Jumlah</th>
-                        <th class="hide-sm">Foto Before</th>
+                        <th class="hide-sm">Foto Pengajuan</th>
                         <th>Status</th>
                         <th class="hide-md">Keterangan</th>
                         <th class="text-center pe-4">Aksi</th>
@@ -83,9 +83,11 @@
                                             <span class="badge bg-warning text-dark">Menunggu</span>
                                         @elseif($transaction->status === 'processed')
                                             <span class="badge bg-info">Diproses</span>
-                                            <div class="small text-muted mt-1">After: {{ $transaction->completionProgress() }}</div>
+                                            <div class="small text-muted mt-1">Pemasangan: {{ $transaction->completionProgress() }}</div>
                                         @elseif($transaction->status === 'completed')
                                             <span class="badge bg-success">Selesai</span>
+                                        @elseif($transaction->status === 'rejected')
+                                            <span class="badge bg-danger">Ditolak</span>
                                         @endif
                                     </td>
                                     <td rowspan="{{ $transaction->details->count() }}" class="hide-md">
@@ -95,24 +97,36 @@
                                         @endif
                                     </td>
                                     <td rowspan="{{ $transaction->details->count() }}" class="text-center pe-4">
-                                        @if($transaction->status === 'pending')
-                                            <form action="{{ route('admin.barang-keluar.process', $transaction) }}" method="POST" class="d-inline" onsubmit="return confirm('Proses permintaan ini?')">
+                                        {{-- Aksi berbeda berdasarkan sumber transaksi --}}
+                                        @if($transaction->requester)
+                                            {{-- Dari karyawan: Proses + Tolak --}}
+                                            @if($transaction->status === 'pending')
+                                                <form action="{{ route('admin.barang-keluar.process', $transaction) }}" method="POST" class="d-inline" onsubmit="return confirm('Proses permintaan ini? Stok akan dikurangi.')">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-sm btn-success" title="Proses">
+                                                        <i class="bi bi-check-circle"></i>
+                                                    </button>
+                                                </form>
+                                                <form action="{{ route('admin.barang-keluar.reject', $transaction) }}" method="POST" class="d-inline" onsubmit="return confirm('Tolak permintaan ini?')">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Tolak">
+                                                        <i class="bi bi-x-circle"></i>
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        @else
+                                            {{-- Input admin langsung: Edit + Hapus --}}
+                                            <a href="{{ route('admin.barang-keluar.edit', $transaction) }}" class="btn btn-sm btn-outline-warning" title="Edit">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </a>
+                                            <form action="{{ route('admin.barang-keluar.destroy', $transaction) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin hapus transaksi ini? Stok akan dikembalikan.')">
                                                 @csrf
-                                                <button type="submit" class="btn btn-sm btn-success" title="Proses">
-                                                    <i class="bi bi-check-circle"></i>
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus">
+                                                    <i class="bi bi-trash"></i>
                                                 </button>
                                             </form>
                                         @endif
-                                        <a href="{{ route('admin.barang-keluar.edit', $transaction) }}" class="btn btn-sm btn-outline-warning" title="Edit">
-                                            <i class="bi bi-pencil-square"></i>
-                                        </a>
-                                        <form action="{{ route('admin.barang-keluar.destroy', $transaction) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin hapus transaksi ini? Stok akan dikembalikan.')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </form>
                                     </td>
                                 @endif
                             </tr>

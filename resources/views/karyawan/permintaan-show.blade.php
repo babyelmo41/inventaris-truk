@@ -19,12 +19,14 @@
                 <span class="badge bg-info ms-2">Sedang Diproses</span>
             @elseif($permintaan->status === 'completed')
                 <span class="badge bg-success ms-2">Selesai</span>
+            @elseif($permintaan->status === 'rejected')
+                <span class="badge bg-danger ms-2">Ditolak</span>
             @endif
         </div>
         <div class="col-md-3"><strong>Keperluan:</strong> {{ $permintaan->purpose }}</div>
         <div class="col-md-3"><strong>Truk:</strong> {{ $permintaan->truck_name ?: '-' }}</div>
         <div class="col-md-3">
-            <strong>Progress Foto After:</strong>
+            <strong>Progress Foto Bukti Pemasangan:</strong>
             <span class="badge bg-secondary ms-1">{{ $permintaan->completionProgress() }}</span>
         </div>
     </div>
@@ -37,15 +39,19 @@
 
     @if($permintaan->status === 'pending')
     <div class="alert alert-info mb-3">
-        <i class="bi bi-info-circle me-2"></i>Permintaan Anda sedang menunggu proses oleh Admin. Foto before sudah tercatat.
+        <i class="bi bi-info-circle me-2"></i>Permintaan Anda sedang menunggu proses oleh Admin. Foto pengajuan sudah tercatat.
     </div>
     @elseif($permintaan->status === 'processed')
     <div class="alert alert-warning mb-3">
-        <i class="bi bi-camera me-2"></i><strong>Upload foto after</strong> — setelah memasang sparepart, upload foto bukti pemasangan untuk setiap item di bawah ini.
+        <i class="bi bi-camera me-2"></i><strong>Upload foto bukti pemasangan</strong> — setelah memasang sparepart, upload foto bukti pemasangan untuk setiap item di bawah ini.
     </div>
     @elseif($permintaan->status === 'completed')
     <div class="alert alert-success mb-3">
-        <i class="bi bi-check-circle me-2"></i>Semua foto after sudah terupload. Permintaan ini selesai.
+        <i class="bi bi-check-circle me-2"></i>Semua foto bukti pemasangan sudah terupload. Permintaan ini selesai.
+    </div>
+    @elseif($permintaan->status === 'rejected')
+    <div class="alert alert-danger mb-3">
+        <i class="bi bi-x-circle me-2"></i>Permintaan ini ditolak oleh Admin. Silakan hubungi Admin gudang untuk informasi lebih lanjut.
     </div>
     @endif
 
@@ -63,7 +69,7 @@
                 </div>
 
                 <div class="col-md-4">
-                    <div class="fw-semibold mb-1"><i class="bi bi-camera me-1"></i>Foto Before</div>
+                    <div class="fw-semibold mb-1"><i class="bi bi-camera me-1"></i>Foto Pengajuan</div>
                     @if($detail->before_photo)
                         <a href="{{ $detail->before_photo_url }}" target="_blank">
                             <img src="{{ $detail->before_photo_url }}" class="img-thumbnail" style="max-height: 150px;">
@@ -74,7 +80,7 @@
                 </div>
 
                 <div class="col-md-5">
-                    <div class="fw-semibold mb-1"><i class="bi bi-camera-fill me-1"></i>Foto After</div>
+                    <div class="fw-semibold mb-1"><i class="bi bi-camera-fill me-1"></i>Foto Bukti Pemasangan</div>
                     @if($detail->after_photo)
                         <a href="{{ $detail->after_photo_url }}" target="_blank">
                             <img src="{{ $detail->after_photo_url }}" class="img-thumbnail" style="max-height: 150px;">
@@ -86,7 +92,7 @@
                             <input type="file" class="form-control form-control-sm after-photo-input" name="after_photo" accept="image/*" capture="environment" required>
                             <div class="preview-container mt-1"></div>
                             <button type="submit" class="btn btn-sm btn-success mt-2">
-                                <i class="bi bi-upload me-1"></i>Upload Foto After
+                                <i class="bi bi-upload me-1"></i>Upload Foto Bukti Pemasangan
                             </button>
                         </form>
                     @else
@@ -101,7 +107,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Preview foto after sebelum upload
+    // Preview foto bukti pemasangan sebelum upload
     document.querySelectorAll('.after-photo-input').forEach(function(input) {
         input.addEventListener('change', function(e) {
             const file = e.target.files[0];
