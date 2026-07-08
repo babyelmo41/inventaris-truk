@@ -59,7 +59,7 @@
 
 <div class="meta">
     <div>
-        <span>Tanggal Cetak : {{ now()->format('d M Y H:i') }}</span>
+        <span>Tanggal Cetak : {{ \Carbon\Carbon::now('Asia/Makassar')->format('d M Y H:i') }}</span>
         @if($filters['date'])
             <span style="margin-left: 16px;">Tanggal: {{ \Carbon\Carbon::parse($filters['date'])->format('d M Y') }}</span>
         @endif

@@ -59,7 +59,7 @@
 
 <div class="meta">
     <div>
-        <span>Tanggal Cetak : {{ now()->format('d M Y H:i') }}</span>
+        <span>Tanggal Cetak : <span id="printDate">{{ now()->format('d M Y H:i') }}</span></span>
         @if($filters['date'])
             <span style="margin-left: 16px;">Tanggal: {{ \Carbon\Carbon::parse($filters['date'])->format('d M Y') }}</span>
         @endif
@@ -137,7 +137,7 @@
         </td>
         <td valign="top" style="border: none; vertical-align: top; text-align: right;">
             <div class="signature-box">
-                <div class="location-date">Kab. Banjar, {{ now()->format('d M Y') }}</div>
+                <div class="location-date">Kab. Banjar, <span id="signatureDate">{{ now()->format('d M Y') }}</span></div>
                 <div class="label">Mengetahui,</div>
                 <div class="title">Pimpinan</div>
                 <div class="line"></div>
@@ -152,6 +152,25 @@
 </div>
 
 <script>
+    // Replace server time with client time
+    document.addEventListener('DOMContentLoaded', function() {
+        var now = new Date();
+        var months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+        var day = now.getDate();
+        var month = months[now.getMonth()];
+        var year = now.getFullYear();
+        var hours = String(now.getHours()).padStart(2, '0');
+        var minutes = String(now.getMinutes()).padStart(2, '0');
+
+        var printDate = day + ' ' + month + ' ' + year + ' ' + hours + ':' + minutes;
+        var signatureDate = day + ' ' + month + ' ' + year;
+
+        var printEl = document.getElementById('printDate');
+        var sigEl = document.getElementById('signatureDate');
+        if (printEl) printEl.textContent = printDate;
+        if (sigEl) sigEl.textContent = signatureDate;
+    });
+
     // Auto-trigger print dialog after page loads
     window.addEventListener('load', function() {
         setTimeout(function() { window.print(); }, 300);
