@@ -587,12 +587,15 @@ class InventoryController extends Controller
         // Kurangi stok sparepart untuk setiap item dalam permintaan
         foreach ($transaction->details as $detail) {
             Sparepart::where('id', $detail->sparepart_id)->decrement('stock', $detail->quantity);
+
+            // Update item_status ke processed
+            $detail->update(['item_status' => 'processed']);
         }
 
         $transaction->update([
             'status' => 'processed',
         ]);
 
-        return redirect()->route('admin.barang-keluar')->with('success', "Permintaan {$transaction->reference_no} berhasil diproses!");
+        return redirect()->route('admin.barang-keluar')->with('success', "Permintaan {$transaction->reference_no} berhasil diproses! Karyawan bisa upload foto after.");
     }
 }

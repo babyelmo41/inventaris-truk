@@ -35,4 +35,16 @@ class PengajuanPembelian extends Model
     {
         return $this->hasMany(DetailPengajuanPembelian::class);
     }
+
+    // Total estimasi harga semua item
+    public function getTotalEstimasiAttribute(): float
+    {
+        return $this->details->sum(fn ($d) => $d->quantity * $d->price);
+    }
+
+    // Format total estimasi
+    public function getTotalEstimasiFormattedAttribute(): string
+    {
+        return 'Rp ' . number_format($this->total_estimasi, 0, ',', '.');
+    }
 }

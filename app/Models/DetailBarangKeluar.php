@@ -12,6 +12,9 @@ class DetailBarangKeluar extends Model
         'barang_keluar_id',
         'sparepart_id',
         'quantity',
+        'before_photo',
+        'after_photo',
+        'item_status',
     ];
 
     // Relasi: detail milik 1 barang keluar
@@ -24,5 +27,42 @@ class DetailBarangKeluar extends Model
     public function sparepart()
     {
         return $this->belongsTo(Sparepart::class);
+    }
+
+    // Accessor: URL foto before
+    public function getBeforePhotoUrlAttribute(): ?string
+    {
+        return $this->before_photo ? asset('storage/' . $this->before_photo) : null;
+    }
+
+    // Accessor: URL foto after
+    public function getAfterPhotoUrlAttribute(): ?string
+    {
+        return $this->after_photo ? asset('storage/' . $this->after_photo) : null;
+    }
+
+    // Helper: apakah item sudah lengkap foto after-nya?
+    public function hasAfterPhoto(): bool
+    {
+        return !empty($this->after_photo);
+    }
+
+    // Helper: badge status
+    public function getStatusBadgeAttribute(): string
+    {
+        return match ($this->item_status) {
+            'completed' => 'success',
+            'processed' => 'warning',
+            default => 'secondary',
+        };
+    }
+
+    public function getStatusLabelAttribute(): string
+    {
+        return match ($this->item_status) {
+            'completed' => 'Selesai',
+            'processed' => 'Diproses',
+            default => 'Menunggu',
+        };
     }
 }

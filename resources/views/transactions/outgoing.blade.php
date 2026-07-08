@@ -46,10 +46,10 @@
                         <th>No Referensi</th>
                         <th class="hide-sm">Tujuan</th>
                         <th>Sparepart</th>
-                        <th class="text-center">Jumlah Keluar</th>
-                        <th class="hide-md">Keterangan</th>
+                        <th class="text-center">Jumlah</th>
+                        <th class="hide-sm">Foto Before</th>
                         <th>Status</th>
-                        <th class="hide-sm">User</th>
+                        <th class="hide-md">Keterangan</th>
                         <th class="text-center pe-4">Aksi</th>
                     </tr>
                 </thead>
@@ -68,21 +68,32 @@
                                 @endif
                                 <td>{{ $detail->sparepart->name }}</td>
                                 <td class="text-center">{{ $detail->quantity }} {{ $detail->sparepart->unit }}</td>
+                                <td class="hide-sm">
+                                    @if($detail->before_photo)
+                                        <a href="{{ $detail->before_photo_url }}" target="_blank">
+                                            <img src="{{ $detail->before_photo_url }}" class="img-thumbnail" style="max-height: 50px; cursor: zoom-in;" title="Klik untuk perbesar">
+                                        </a>
+                                    @else
+                                        <span class="text-muted small">-</span>
+                                    @endif
+                                </td>
                                 @if($loop->first)
+                                    <td rowspan="{{ $transaction->details->count() }}">
+                                        @if($transaction->status === 'pending')
+                                            <span class="badge bg-warning text-dark">Menunggu</span>
+                                        @elseif($transaction->status === 'processed')
+                                            <span class="badge bg-info">Diproses</span>
+                                            <div class="small text-muted mt-1">After: {{ $transaction->completionProgress() }}</div>
+                                        @elseif($transaction->status === 'completed')
+                                            <span class="badge bg-success">Selesai</span>
+                                        @endif
+                                    </td>
                                     <td rowspan="{{ $transaction->details->count() }}" class="hide-md">
                                         {{ $transaction->notes ?? '-' }}
                                         @if($transaction->requester)
                                             <br><small class="text-muted">Diminta: {{ $transaction->requester->name }}</small>
                                         @endif
                                     </td>
-                                    <td rowspan="{{ $transaction->details->count() }}">
-                                        @if($transaction->status === 'pending')
-                                            <span class="badge bg-warning text-dark">Menunggu</span>
-                                        @else
-                                            <span class="badge bg-success">Diproses</span>
-                                        @endif
-                                    </td>
-                                    <td rowspan="{{ $transaction->details->count() }}" class="hide-sm">{{ $transaction->user->name }}</td>
                                     <td rowspan="{{ $transaction->details->count() }}" class="text-center pe-4">
                                         @if($transaction->status === 'pending')
                                             <form action="{{ route('admin.barang-keluar.process', $transaction) }}" method="POST" class="d-inline" onsubmit="return confirm('Proses permintaan ini?')">
@@ -108,7 +119,7 @@
                         @endforeach
                     @empty
                         <tr>
-                            <td colspan="10" class="text-center text-muted py-5">
+                            <td colspan="11" class="text-center text-muted py-5">
                                 <i class="bi bi-inbox fs-1 d-block mb-2"></i>
                                 Belum ada transaksi barang keluar.
                             </td>

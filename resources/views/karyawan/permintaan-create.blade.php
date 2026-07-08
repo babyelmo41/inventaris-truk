@@ -5,7 +5,7 @@
     <div class="d-flex flex-wrap gap-3 align-items-center justify-content-between mb-4">
         <div>
             <h2 class="h5 fw-bold mb-1">{{ $title }}</h2>
-            <div class="text-secondary">Ajukan permintaan sparepart. Admin akan memproses permintaan Anda.</div>
+            <div class="text-secondary">Ajukan permintaan sparepart. Sertakan foto bukti kondisi truk sebelum perbaikan (before).</div>
         </div>
         <a href="{{ route('karyawan.permintaan.index') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i>Kembali</a>
     </div>
@@ -16,7 +16,7 @@
         </div>
     @endif
 
-    <form action="{{ route('karyawan.permintaan.store') }}" method="POST" id="permintaanForm">
+    <form action="{{ route('karyawan.permintaan.store') }}" method="POST" id="permintaanForm" enctype="multipart/form-data">
         @csrf
 
         <div class="row mb-4">
@@ -46,6 +46,9 @@
         </div>
 
         <h5 class="fw-bold mb-3"><i class="bi bi-list-check me-2"></i>Item yang Diminta</h5>
+        <div class="alert alert-info mb-3">
+            <i class="bi bi-camera me-2"></i><strong>Setiap item wajib dilengkapi foto before</strong> — foto bukti kondisi truk/sparepart sebelum perbaikan. Bisa ambil dari kamera langsung atau pilih dari galeri.
+        </div>
 
         @error('items')<div class="alert alert-danger">{{ $message }}</div>@enderror
 
@@ -53,10 +56,11 @@
             <table class="table table-bordered" id="itemsTable">
                 <thead class="table-light">
                     <tr>
-                        <th style="width: 50%">Sparepart <span class="text-danger">*</span></th>
-                        <th style="width: 15%">Stok Tersedia</th>
-                        <th style="width: 15%">Jumlah Diminta <span class="text-danger">*</span></th>
-                        <th style="width: 10%">Satuan</th>
+                        <th style="width: 30%">Sparepart <span class="text-danger">*</span></th>
+                        <th style="width: 10%">Stok</th>
+                        <th style="width: 10%">Jumlah <span class="text-danger">*</span></th>
+                        <th style="width: 8%">Satuan</th>
+                        <th style="width: 32%">Foto Before <span class="text-danger">*</span></th>
                         <th style="width: 10%">Aksi</th>
                     </tr>
                 </thead>
@@ -73,6 +77,10 @@
                         <td><span class="stock-display form-control-plaintext text-muted">-</span></td>
                         <td><input type="number" class="form-control quantity-input" name="items[0][quantity]" value="1" min="1" required></td>
                         <td><span class="unit-display form-control-plaintext">-</span></td>
+                        <td>
+                            <input type="file" class="form-control form-control-sm before-photo-input" name="items[0][before_photo]" accept="image/*" capture="environment" required>
+                            <div class="preview-container mt-1"></div>
+                        </td>
                         <td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger remove-row"><i class="bi bi-trash"></i></button></td>
                     </tr>
                 </tbody>
@@ -94,8 +102,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     let rowIndex = 1;
     const sparepartOptions = `<option value="">-- Pilih Sparepart --</option>
-        @foreach($spareparts as $sp)\n            <option value="{{ $sp->id }}" data-stock="{{ $sp->stock }}" data-unit="{{ $sp->unit }}" {{ $sp->stock <= 0 ? 'disabled' : '' }}>{{ $sp->code }} - {{ $sp->name }} ({{ $sp->stock <= 0 ? 'HABIS' : $sp->stock . ' ' . $sp->unit }})</option>
-        @endforeach`;
+        @foreach($spareparts as $sp)\n            <option value="{{ $sp->id }}" data-stock="{{ $sp->stock }}" data-unit="{{ $sp->unit }}" {{ $sp->stock <= 0 ? 'disabled' : '' }}>{{ $sp->code }} - {{ $sp->name }} ({{ $sp->stock <= 0 ? 'HABIS' : $sp->stock . ' ' . $sp->unit }})</option>\n        @endforeach`;
 
     document.getElementById('addItem').addEventListener('click', function() {
         const tbody = document.getElementById('itemsBody');
@@ -106,6 +113,10 @@ document.addEventListener('DOMContentLoaded', function() {
             <td><span class="stock-display form-control-plaintext text-muted">-</span></td>
             <td><input type="number" class="form-control quantity-input" name="items[${rowIndex}][quantity]" value="1" min="1" required></td>
             <td><span class="unit-display form-control-plaintext">-</span></td>
+            <td>
+                <input type="file" class="form-control form-control-sm before-photo-input" name="items[${rowIndex}][before_photo]" accept="image/*" capture="environment" required>
+                <div class="preview-container mt-1"></div>
+            </td>
             <td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger remove-row"><i class="bi bi-trash"></i></button></td>
         `;
         tbody.appendChild(newRow);
@@ -128,6 +139,28 @@ document.addEventListener('DOMContentLoaded', function() {
             const row = e.target.closest('.item-row');
             row.querySelector('.stock-display').textContent = stock + ' pcs';
             row.querySelector('.unit-display').textContent = unit;
+        }
+
+        // Preview foto sebelum submit
+        if (e.target.classList.contains('before-photo-input')) {
+            const file = e.target.files[0];
+            const container = e.target.closest('td').querySelector('.preview-container');
+            container.innerHTML = '';
+
+            if (file) {
+                // Validasi ukuran (max 2MB)
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('Ukuran foto maksimal 2MB!');
+                    e.target.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    container.innerHTML = `<img src="${ev.target.result}" class="img-thumbnail" style="max-height: 80px;">`;
+                };
+                reader.readAsDataURL(file);
+            }
         }
     });
 });

@@ -53,6 +53,7 @@ Sistem memiliki **3 role utama**:
 
 **detail_barang_keluar** — Detail item per transaksi keluar
 - id, barang_keluar_id (FK), sparepart_id (FK), quantity
+- before_photo (path foto bukti kondisi sebelum), after_photo (path foto bukti setelah pasang), item_status (pending/processed/completed)
 
 ### 3.3 Tabel Pengajuan & Approval
 
@@ -61,6 +62,7 @@ Sistem memiliki **3 role utama**:
 
 **detail_pengajuan_pembelian** — Detail item pengajuan
 - id, pengajuan_pembelian_id (FK), sparepart_id (FK), quantity, notes
+- price (decimal, harga satuan estimasi)
 
 **stock_opnames** — Pencatatan stock opname (audit fisik)
 - id, opname_no (unik), date, cycle_month (YYYY-MM), cycle_group (A/B/C/D), user_id (FK→admin), approved_by (FK→pimpinan), status (draft/submitted/approved/rejected), notes, timestamps
@@ -155,11 +157,13 @@ Sistem memiliki **3 role utama**:
 
 **Jalur B — Dari permintaan karyawan (flow lebih panjang):**
 1. Karyawan buat permintaan (lihat modul 4.7)
-2. Karyawan mengisi: reference_no, purpose, truck_name, items
+2. Karyawan mengisi: reference_no, purpose, truck_name, items + **foto before per item** (wajib)
 3. Status awal "pending", stok belum berkurang
 4. Admin review permintaan
 5. Admin klik "Proses" → status berubah "processed", **stok baru dikurangi**
-6. Jika stok tidak cukup saat proses → error
+6. Karyawan memasang sparepart → upload **foto after per item** (wajib)
+7. Semua foto after terisi → status otomatis "completed"
+8. Jika stok tidak cukup saat proses → error
 
 **Edit Barang Keluar:**
 - Mirip barang masuk — stok dikoreksi otomatis (rollback lama, apply baru)
@@ -174,10 +178,14 @@ Sistem memiliki **3 role utama**:
 **Alur:**
 1. **Admin** buat pengajuan pembelian:
    - Isi: ajuan_no, tanggal, catatan
-   - Tambah item: sparepart + quantity + catatan item
+   - Tambah item: sparepart + quantity + **estimasi harga satuan** + catatan item
+   - Harga terakhir barang masuk ditampilkan sebagai referensi (auto-suggest)
+   - Total estimasi (qty × harga) otomatis dihitung dan ditampilkan
    - Status awal: "pending"
 2. **Pimpinan** melihat daftar pengajuan masuk
 3. **Pimpinan** review detail pengajuan
+   - Melihat estimasi harga per item dan total keseluruhan
+   - Informasi budget sebagai pertimbangan approve/reject
 4. Pimpinan pilih:
    - **Approve** → status "approved", catat siapa yang approve
    - **Reject** → status "rejected", wajib isi alasan penolakan
@@ -208,11 +216,15 @@ Sistem memiliki **3 role utama**:
 2. Karyawan bisa lihat **Katalog Sparepart** (read-only, termasuk info stok tersedia)
 3. Karyawan buat permintaan:
    - Isi: reference_no, purpose (tujuan penggunaan), truck_name (nama truk), catatan
-   - Tambah item: sparepart + quantity yang dibutuhkan
+   - Tambah item: sparepart + quantity yang dibutuhkan + **foto before** (wajib, bukti kondisi truk sebelum perbaikan)
+   - Foto bisa diambil dari kamera langsung atau pilih dari galeri (mobile-friendly)
+   - Foto otomatis dikompres (max 1920px, JPEG 80%) sebelum disimpan
 4. **Sistem validasi:** stok sparepart harus cukup (qty <= stock saat ini)
 5. Jika stok tidak cukup → error "Stok [nama] tidak cukup! Tersedia: [qty]"
 6. Jika OK → simpan sebagai barang_keluar dengan status **"pending"**
-7. Karyawan bisa lihat status permintaan (pending/processed)
+7. Karyawan bisa lihat status permintaan (pending/processed/completed)
+8. Setelah Admin proses (status "processed"), karyawan upload **foto after per item** (bukti pemasangan)
+9. Semua foto after terisi → status otomatis **"completed"**
 8. **Admin** melihat permintaan di daftar barang keluar (filter status pending)
 9. Admin review dan klik **"Proses"** → status berubah "processed", stok berkurang
 
@@ -311,6 +323,8 @@ stock_opnames ──1:N──> stock_opname_details
 5. **Barang Keluar dari permintaan karyawan** dimulai status "pending" — stok baru berkurang saat Admin "memproses"
 
 6. **Validasi stok cukup** dilakukan saat karyawan membuat permintaan (qty <= stock)
+9. **Foto before/after** wajib untuk setiap item permintaan karyawan — foto diupload via HP (accept="image/*" capture="environment"), dikompres otomatis
+10. **Estimasi harga pengajuan pembelian** wajib diisi admin — harga terakhir barang masuk ditampilkan sebagai referensi
 
 7. **Semua transaksi** mencatat user_id (siapa yang input) dan timestamp
 

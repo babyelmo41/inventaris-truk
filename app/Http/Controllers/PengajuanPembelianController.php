@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Helpers\CodeGenerator;
 use App\Models\PengajuanPembelian;
 use App\Models\DetailPengajuanPembelian;
+use App\Models\DetailBarangMasuk;
 use App\Models\Sparepart;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -51,6 +53,7 @@ class PengajuanPembelianController extends Controller
             'items' => 'required|array|min:1',
             'items.*.sparepart_id' => 'required|exists:spareparts,id',
             'items.*.quantity' => 'required|integer|min:1',
+            'items.*.price' => 'required|numeric|min:0',
             'items.*.notes' => 'nullable',
         ]);
 
@@ -68,6 +71,7 @@ class PengajuanPembelianController extends Controller
                     'pengajuan_pembelian_id' => $pengajuan->id,
                     'sparepart_id' => $item['sparepart_id'],
                     'quantity' => $item['quantity'],
+                    'price' => $item['price'],
                     'notes' => $item['notes'] ?? null,
                 ]);
             }
@@ -84,7 +88,7 @@ class PengajuanPembelianController extends Controller
     {
         return view('pengajuan.show', [
             'title' => 'Detail Pengajuan Pembelian',
-            'pengajuan' => $pengajuan->load(['user', 'details.sparepart']),
+            'pengajuan' => $pengajuan->load(['user', 'details.sparepart', 'approver']),
         ]);
     }
 
@@ -117,5 +121,23 @@ class PengajuanPembelianController extends Controller
     {
         $pengajuan->delete();
         return redirect()->route('admin.pengajuan.index')->with('success', 'Pengajuan berhasil dihapus!');
+    }
+
+    /**
+     * API: Ambil harga terakhir sparepart dari barang masuk
+     */
+    public function getLastPrice(Sparepart $sparepart): JsonResponse
+    {
+        $lastPrice = DetailBarangMasuk::where('sparepart_id', $sparepart->id)
+            ->join('barang_masuk', 'detail_barang_masuk.barang_masuk_id', '=', 'barang_masuk.id')
+            ->orderBy('barang_masuk.date', 'desc')
+            ->orderBy('barang_masuk.time', 'desc')
+            ->value('detail_barang_masuk.price');
+
+        return response()->json([
+            'sparepart_id' => $sparepart->id,
+            'last_price' => $lastPrice ? (int) $lastPrice : null,
+            'formatted' => $lastPrice ? 'Rp ' . number_format($lastPrice, 0, ',', '.') : null,
+        ]);
     }
 }

@@ -83,6 +83,7 @@ Route::middleware('simple.auth')->group(function () {
         Route::post('/pengajuan', [PengajuanPembelianController::class, 'store'])->name('pengajuan.store');
         Route::get('/pengajuan/{pengajuan}', [PengajuanPembelianController::class, 'show'])->name('pengajuan.show');
         Route::delete('/pengajuan/{pengajuan}', [PengajuanPembelianController::class, 'destroy'])->name('pengajuan.destroy');
+        Route::get('/pengajuan/sparepart/{sparepart}/last-price', [PengajuanPembelianController::class, 'getLastPrice'])->name('pengajuan.last-price');
 
         // Stock Opname (Admin)
         Route::get('/stock-opname', [StockOpnameController::class, 'index'])->name('stock-opname.index');
@@ -118,6 +119,7 @@ Route::middleware('simple.auth')->group(function () {
         Route::get('/permintaan/create', [KaryawanController::class, 'permintaanCreate'])->name('permintaan.create');
         Route::post('/permintaan', [KaryawanController::class, 'permintaanStore'])->name('permintaan.store');
         Route::get('/permintaan/{permintaan}', [KaryawanController::class, 'permintaanShow'])->name('permintaan.show');
+        Route::post('/permintaan/{permintaan}/detail/{detail}/upload-after', [KaryawanController::class, 'uploadAfterPhoto'])->name('permintaan.upload-after');
         Route::get('/katalog', [KaryawanController::class, 'katalog'])->name('katalog');
     });
 

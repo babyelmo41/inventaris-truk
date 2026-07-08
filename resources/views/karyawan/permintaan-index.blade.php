@@ -50,7 +50,10 @@
                             <td class="text-center hide-sm">{{ $p->details->count() }} item</td>
                             <td>
                                 @if($p->status === 'pending')<span class="badge bg-warning text-dark">Menunggu</span>
-                                @else<span class="badge bg-success">Diproses</span>
+                                @elseif($p->status === 'processed')
+                                    <span class="badge bg-info">Diproses</span>
+                                    <div class="small text-muted mt-1">Foto after: {{ $p->completionProgress() }}</div>
+                                @elseif($p->status === 'completed')<span class="badge bg-success">Selesai</span>
                                 @endif
                             </td>
                             <td class="text-center pe-4">

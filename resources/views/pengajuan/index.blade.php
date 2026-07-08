@@ -38,6 +38,7 @@
                         <th>Status</th>
                         <th class="hide-md">Disetujui Oleh</th>
                         <th class="text-center hide-sm">Jumlah Item</th>
+                        <th class="text-end hide-md">Estimasi</th>
                         <th class="text-center pe-4">Aksi</th>
                     </tr>
                 </thead>
@@ -59,6 +60,7 @@
                             </td>
                             <td class="hide-md">{{ $p->approver ? $p->approver->name : '-' }}</td>
                             <td class="text-center hide-sm">{{ $p->details->count() }} item</td>
+                            <td class="text-end hide-md text-primary fw-semibold">{{ $p->total_estimasi_formatted }}</td>
                             <td class="text-center pe-4">
                                 <a href="{{ route(session('auth_user')['role'] === 'pimpinan' ? 'pimpinan.pengajuan.show' : 'admin.pengajuan.show', $p) }}" class="btn btn-sm btn-outline-info" title="Detail">
                                     <i class="bi bi-eye"></i>
@@ -73,7 +75,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="text-center text-muted py-5">
+                            <td colspan="9" class="text-center text-muted py-5">
                                 <i class="bi bi-inbox fs-1 d-block mb-2"></i>
                                 Belum ada pengajuan pembelian.
                             </td>

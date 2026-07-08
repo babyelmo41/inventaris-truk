@@ -41,4 +41,28 @@ class BarangKeluar extends Model
     {
         return $this->belongsTo(User::class, 'requested_by');
     }
+
+    // Helper: apakah semua item sudah punya foto after?
+    public function allItemsHaveAfterPhoto(): bool
+    {
+        return $this->details()->whereNull('after_photo')->count() === 0;
+    }
+
+    // Helper: jumlah item yang sudah punya foto after
+    public function completedItemsCount(): int
+    {
+        return $this->details()->whereNotNull('after_photo')->count();
+    }
+
+    // Helper: total items
+    public function totalItemsCount(): int
+    {
+        return $this->details()->count();
+    }
+
+    // Helper: progress string "2/3"
+    public function completionProgress(): string
+    {
+        return $this->completedItemsCount() . '/' . $this->totalItemsCount();
+    }
 }
