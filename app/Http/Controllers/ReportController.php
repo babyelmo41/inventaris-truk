@@ -250,6 +250,7 @@ class ReportController extends Controller
             ->join('suppliers', 'barang_masuk.supplier_id', '=', 'suppliers.id')
             ->join('detail_barang_masuk', 'barang_masuk.id', '=', 'detail_barang_masuk.barang_masuk_id')
             ->join('spareparts', 'detail_barang_masuk.sparepart_id', '=', 'spareparts.id')
+            ->where('barang_masuk.status', 'approved')
             ->tap(fn ($q) => $this->applyDateFilter($q, $request, 'barang_masuk.date'))
             ->orderBy('barang_masuk.date', 'desc')
             ->get()
@@ -276,6 +277,7 @@ class ReportController extends Controller
             )
             ->join('detail_barang_keluar', 'barang_keluar.id', '=', 'detail_barang_keluar.barang_keluar_id')
             ->join('spareparts', 'detail_barang_keluar.sparepart_id', '=', 'spareparts.id')
+            ->whereIn('barang_keluar.status', ['processed', 'completed'])
             ->tap(fn ($q) => $this->applyDateFilter($q, $request, 'barang_keluar.date'))
             ->orderBy('barang_keluar.date', 'desc')
             ->get()
@@ -315,6 +317,7 @@ class ReportController extends Controller
             )
             ->join('barang_masuk', 'barang_masuk.supplier_id', '=', 'suppliers.id')
             ->join('detail_barang_masuk', 'detail_barang_masuk.barang_masuk_id', '=', 'barang_masuk.id')
+            ->where('barang_masuk.status', 'approved')
             ->groupBy('suppliers.id', 'suppliers.name');
 
         // Apply filter
@@ -355,6 +358,7 @@ class ReportController extends Controller
                 DB::raw('SUM(quantity) as total_masuk')
             )
             ->join('detail_barang_masuk', 'detail_barang_masuk.barang_masuk_id', '=', 'barang_masuk.id')
+            ->where('barang_masuk.status', 'approved')
             ->groupBy('bulan', 'bulan_nama');
 
         // Ambil data keluar per bulan
@@ -364,6 +368,7 @@ class ReportController extends Controller
                 DB::raw('SUM(quantity) as total_keluar')
             )
             ->join('detail_barang_keluar', 'detail_barang_keluar.barang_keluar_id', '=', 'barang_keluar.id')
+            ->whereIn('barang_keluar.status', ['processed', 'completed'])
             ->groupBy('bulan');
 
         // Apply filter to both
