@@ -164,8 +164,9 @@ class KaryawanController extends Controller
         ]);
 
         // Cek apakah semua item sudah completed → update header status
-        if ($permintaan->fresh()->allItemsHaveAfterPhoto()) {
-            $permintaan->update(['status' => 'completed']);
+        $freshPermintaan = BarangKeluar::with('details')->findOrFail($permintaan->id);
+        if ($freshPermintaan->allItemsHaveAfterPhoto()) {
+            $freshPermintaan->update(['status' => 'completed']);
         }
 
         return back()->with('success', 'Foto bukti pemasangan berhasil diupload untuk ' . $detail->sparepart->name . '!');
