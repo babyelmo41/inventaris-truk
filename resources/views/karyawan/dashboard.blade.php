@@ -10,47 +10,58 @@
     </div>
 </div>
 
-<div class="row g-4 mb-4">
-    <div class="col-md-3">
-        <div class="metric-card p-4">
-            <div class="d-flex align-items-center gap-3">
+<div class="row g-3 mb-4 row-cols-2 row-cols-lg-5">
+    <div class="col">
+        <div class="metric-card p-3">
+            <div class="d-flex align-items-center gap-2">
                 <div class="metric-icon bg-primary bg-opacity-10 text-primary"><i class="bi bi-clipboard-plus"></i></div>
                 <div>
-                    <div class="small text-secondary">Total Permintaan</div>
-                    <div class="h4 fw-bold mb-0">{{ $stats['total'] }}</div>
+                    <div class="small text-secondary">Total</div>
+                    <div class="h5 fw-bold mb-0">{{ $stats['total'] }}</div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="metric-card p-4">
-            <div class="d-flex align-items-center gap-3">
+    <div class="col">
+        <div class="metric-card p-3">
+            <div class="d-flex align-items-center gap-2">
                 <div class="metric-icon bg-warning bg-opacity-10 text-warning"><i class="bi bi-hourglass-split"></i></div>
                 <div>
-                    <div class="small text-secondary">Menunggu Proses</div>
-                    <div class="h4 fw-bold mb-0">{{ $stats['pending'] }}</div>
+                    <div class="small text-secondary">Menunggu</div>
+                    <div class="h5 fw-bold mb-0">{{ $stats['pending'] }}</div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="metric-card p-4">
-            <div class="d-flex align-items-center gap-3">
+    <div class="col">
+        <div class="metric-card p-3">
+            <div class="d-flex align-items-center gap-2">
                 <div class="metric-icon bg-info bg-opacity-10 text-info"><i class="bi bi-gear"></i></div>
                 <div>
-                    <div class="small text-secondary">Sedang Diproses</div>
-                    <div class="h4 fw-bold mb-0">{{ $stats['processed'] }}</div>
+                    <div class="small text-secondary">Diproses</div>
+                    <div class="h5 fw-bold mb-0">{{ $stats['processed'] }}</div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="metric-card p-4">
-            <div class="d-flex align-items-center gap-3">
+    <div class="col">
+        <div class="metric-card p-3">
+            <div class="d-flex align-items-center gap-2">
                 <div class="metric-icon bg-success bg-opacity-10 text-success"><i class="bi bi-check-circle"></i></div>
                 <div>
                     <div class="small text-secondary">Selesai</div>
-                    <div class="h4 fw-bold mb-0">{{ $stats['completed'] }}</div>
+                    <div class="h5 fw-bold mb-0">{{ $stats['completed'] }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="metric-card p-3">
+            <div class="d-flex align-items-center gap-2">
+                <div class="metric-icon bg-danger bg-opacity-10 text-danger"><i class="bi bi-x-circle"></i></div>
+                <div>
+                    <div class="small text-secondary">Ditolak</div>
+                    <div class="h5 fw-bold mb-0">{{ $stats['rejected'] }}</div>
                 </div>
             </div>
         </div>

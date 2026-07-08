@@ -593,6 +593,50 @@
     <main class="main-area">
         @include('layouts.navbar')
         <div class="content-wrap">
+            {{-- Auto Breadcrumb --}}
+            @php
+                $segments = request()->segments();
+                $breadcrumbMap = [
+                    'admin' => 'Admin',
+                    'karyawan' => 'Karyawan',
+                    'pimpinan' => 'Pimpinan',
+                    'dashboard' => 'Dashboard',
+                    'sparepart' => 'Sparepart',
+                    'kategori' => 'Kategori',
+                    'supplier' => 'Supplier',
+                    'user' => 'User',
+                    'barang-masuk' => 'Barang Masuk',
+                    'barang-keluar' => 'Barang Keluar',
+                    'pengajuan' => 'Pengajuan Pembelian',
+                    'stock-opname' => 'Stock Opname',
+                    'monitoring-stok' => 'Monitoring Stok',
+                    'laporan' => 'Laporan',
+                    'permintaan' => 'Permintaan',
+                    'katalog' => 'Katalog',
+                    'create' => 'Tambah',
+                    'edit' => 'Edit',
+                ];
+            @endphp
+            @if(count($segments) > 1)
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb small mb-0">
+                    <li class="breadcrumb-item"><a href="{{ url('/') }}" class="text-decoration-none"><i class="bi bi-house"></i></a></li>
+                    @foreach($segments as $i => $segment)
+                        @if($i < count($segments) - 1)
+                            <li class="breadcrumb-item">
+                                <a href="{{ url(implode('/', array_slice($segments, 0, $i + 1))) }}" class="text-decoration-none">
+                                    {{ $breadcrumbMap[$segment] ?? ucfirst(str_replace('-', ' ', $segment)) }}
+                                </a>
+                            </li>
+                        @else
+                            <li class="breadcrumb-item active" aria-current="page">
+                                {{ $breadcrumbMap[$segment] ?? ucfirst(str_replace('-', ' ', $segment)) }}
+                            </li>
+                        @endif
+                    @endforeach
+                </ol>
+            </nav>
+            @endif
             @yield('content')
         </div>
     </main>
@@ -681,5 +725,51 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @stack('scripts')
+
+{{-- Toast Notification Container --}}
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 9999;">
+    @if(session('success'))
+    <div id="toastSuccess" class="toast show align-items-center text-bg-success border-0" role="alert">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+    @endif
+    @if(session('error'))
+    <div id="toastError" class="toast show align-items-center text-bg-danger border-0" role="alert">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="bi bi-exclamation-circle me-2"></i>{{ session('error') }}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+    @endif
+    @if($errors->any())
+    <div id="toastValidation" class="toast show align-items-center text-bg-warning border-0" role="alert">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="bi bi-exclamation-triangle me-2"></i>Ada kesalahan pada input. Silakan periksa kembali.
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+    @endif
+</div>
+
+<script>
+// Auto-hide toasts after 4 seconds
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.toast.show').forEach(function(toast) {
+        setTimeout(function() {
+            var bsToast = bootstrap.Toast.getOrCreateInstance(toast);
+            bsToast.hide();
+        }, 4000);
+    });
+});
+</script>
 </body>
 </html>
