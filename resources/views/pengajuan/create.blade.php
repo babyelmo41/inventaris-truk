@@ -19,6 +19,9 @@
     <form action="{{ route('admin.pengajuan.store') }}" method="POST" id="pengajuanForm">
         @csrf
 
+        {{-- Hidden field: time dari device user --}}
+        <input type="hidden" name="time" id="clientTime">
+
         <div class="row mb-4">
             <div class="col-md-4 mb-3">
                 <label for="date" class="form-label fw-semibold">Tanggal <span class="text-danger">*</span></label>
@@ -100,6 +103,12 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Set time dari device user
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    document.getElementById('clientTime').value = `${hours}:${minutes}`;
+
     let rowIndex = 1;
     const baseUrl = '{{ url("/") }}';
     const sparepartOptions = `<option value="">-- Pilih --</option>

@@ -46,7 +46,7 @@
                     @forelse($pengajuan as $i => $p)
                         <tr>
                             <td class="ps-4 text-muted hide-sm">{{ $i + 1 }}</td>
-                            <td>{{ $p->date->format('d M Y') }} {{ $p->created_at->format('H:i') }}</td>
+                            <td>{{ $p->date->format('d M Y') }} {{ \Carbon\Carbon::parse($p->time)->format('H:i') }}</td>
                             <td class="hide-md"><span class="fw-semibold">{{ $p->ajuan_no }}</span></td>
                             <td class="hide-sm">{{ $p->user->name }}</td>
                             <td>

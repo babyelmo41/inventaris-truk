@@ -5,7 +5,7 @@
     <div class="d-flex flex-wrap gap-3 align-items-center justify-content-between mb-4">
         <div>
             <h2 class="h5 fw-bold mb-1">{{ $title }}</h2>
-            <div class="text-secondary">{{ $pengajuan->ajuan_no }} - {{ $pengajuan->date->format('d M Y') }}</div>
+            <div class="text-secondary">{{ $pengajuan->ajuan_no }} - {{ $pengajuan->date->format('d M Y') }} {{ \Carbon\Carbon::parse($pengajuan->time)->format('H:i') }}</div>
         </div>
         <a href="{{ route(session('auth_user')['role'] === 'pimpinan' ? 'pimpinan.pengajuan.index' : 'admin.pengajuan.index') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i>Kembali</a>
     </div>

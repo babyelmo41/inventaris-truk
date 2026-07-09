@@ -49,6 +49,7 @@ class PengajuanPembelianController extends Controller
     {
         $request->validate([
             'date' => 'required|date',
+            'time' => 'required',
             'ajuan_no' => 'required|unique:pengajuan_pembelian,ajuan_no',
             'notes' => 'nullable',
             'items' => 'required|array|min:1',
@@ -63,6 +64,7 @@ class PengajuanPembelianController extends Controller
             $pengajuan = PengajuanPembelian::create([
                 'ajuan_no' => $request->ajuan_no,
                 'date' => $request->date,
+                'time' => $request->time,
                 'user_id' => $request->session()->get('auth_user')['id'],
                 'notes' => $request->notes,
             ]);

@@ -11,6 +11,7 @@ class PengajuanPembelian extends Model
     protected $fillable = [
         'ajuan_no',
         'date',
+        'time',
         'user_id',
         'approved_by',
         'status',
