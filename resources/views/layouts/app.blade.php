@@ -826,10 +826,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (lastCounts.permintaan_pending !== undefined && data.permintaan_pending > lastCounts.permintaan_pending) {
                     const diff = data.permintaan_pending - lastCounts.permintaan_pending;
-                    showToast('bi-inbox', 'primary', 'Permintaan Baru', diff + ' permintaan sparepart menunggu diproses', '{{ route("admin.barang-keluar") }}');
+                    showToast('bi-inbox', 'primary', 'Tugas Approval', 'Terdapat ' + diff + ' permintaan sparepart baru yang memerlukan pemrosesan Anda.', '{{ route("admin.barang-keluar") }}');
                 }
                 if (lastCounts.pengajuan_pending !== undefined && data.pengajuan_pending > lastCounts.pengajuan_pending) {
-                    showToast('bi-cart-plus', 'warning', 'Pengajuan Baru', 'Ada pengajuan pembelian baru', '{{ route("admin.pengajuan.index") }}');
+                    showToast('bi-cart-plus', 'warning', 'Tugas Approval', 'Terdapat pengajuan pembelian baru yang memerlukan verifikasi Anda.', '{{ route("admin.pengajuan.index") }}');
                 }
 
                 updateBadge(badgePermintaan, data.permintaan_pending);
@@ -842,10 +842,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 const badgeOpname = document.getElementById('badge-opname');
 
                 if (lastCounts.pengajuan_pending !== undefined && data.pengajuan_pending > lastCounts.pengajuan_pending) {
-                    showToast('bi-cart-plus', 'warning', 'Pengajuan Menunggu', 'Ada pengajuan pembelian menunggu persetujuan', '{{ route("pimpinan.pengajuan.index") }}');
+                    showToast('bi-cart-plus', 'warning', 'Tugas Persetujuan', 'Terdapat pengajuan pembelian yang menunggu persetujuan Anda.', '{{ route("pimpinan.pengajuan.index") }}');
                 }
                 if (lastCounts.opname_pending !== undefined && data.opname_pending > lastCounts.opname_pending) {
-                    showToast('bi-clipboard-check', 'info', 'Stock Opname Baru', 'Ada stock opname menunggu review', '{{ route("pimpinan.stock-opname.index") }}');
+                    showToast('bi-clipboard-check', 'info', 'Tugas Review', 'Terdapat laporan stock opname yang menunggu review Anda.', '{{ route("pimpinan.stock-opname.index") }}');
                 }
 
                 updateBadge(badgePengajuan, data.pengajuan_pending);
