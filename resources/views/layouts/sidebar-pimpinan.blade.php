@@ -13,8 +13,8 @@
         [
             'section' => 'Persetujuan',
             'items' => [
-                ['label' => 'Pengajuan Pembelian', 'icon' => 'bi-cart-plus', 'route' => 'pimpinan.pengajuan.index', 'badge' => $pengajuanPending ?: null, 'badge_color' => 'warning'],
-                ['label' => 'Stock Opname', 'icon' => 'bi-clipboard-check', 'route' => 'pimpinan.stock-opname.index', 'badge' => $opnamePending ?: null, 'badge_color' => 'warning'],
+                ['label' => 'Pengajuan Pembelian', 'icon' => 'bi-cart-plus', 'route' => 'pimpinan.pengajuan.index', 'badge' => $pengajuanPending ?: null, 'badge_color' => 'warning', 'badge_id' => 'badge-pengajuan'],
+                ['label' => 'Stock Opname', 'icon' => 'bi-clipboard-check', 'route' => 'pimpinan.stock-opname.index', 'badge' => $opnamePending ?: null, 'badge_color' => 'warning', 'badge_id' => 'badge-opname'],
             ],
         ],
         [
@@ -43,7 +43,9 @@
                         <i class="bi {{ $item['icon'] }}"></i>
                         <span>{{ $item['label'] }}</span>
                         @if(!empty($item['badge']))
-                            <span class="badge rounded-pill bg-{{ $item['badge_color'] ?? 'danger' }} ms-auto">{{ $item['badge'] }}</span>
+                            <span class="badge rounded-pill bg-{{ $item['badge_color'] ?? 'danger' }} ms-auto" id="{{ $item['badge_id'] ?? '' }}">{{ $item['badge'] }}</span>
+                        @elseif(!empty($item['badge_id']))
+                            <span class="badge rounded-pill bg-{{ $item['badge_color'] ?? 'danger' }} ms-auto" id="{{ $item['badge_id'] }}" style="display:none;">0</span>
                         @endif
                     </a>
                 @endforeach

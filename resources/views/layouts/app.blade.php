@@ -771,5 +771,98 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+{{-- Real-time Notifikasi Polling --}}
+@if(in_array(($user['role'] ?? null), ['admin', 'pimpinan']))
+<div id="notifToastContainer" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 9998;"></div>
+<script>
+(function() {
+    const role = '{{ $user["role"] ?? "" }}';
+    let lastCounts = {};
+
+    function updateBadge(el, count) {
+        if (!el) return;
+        if (count > 0) {
+            el.textContent = count;
+            el.style.display = '';
+        } else {
+            el.style.display = 'none';
+        }
+    }
+
+    function showToast(icon, bgClass, title, message, link) {
+        const container = document.getElementById('notifToastContainer');
+        if (!container) return;
+        const id = 'notif-' + Date.now();
+        const html = `
+            <div id="${id}" class="toast align-items-center text-bg-${bgClass} border-0" role="alert">
+                <div class="d-flex">
+                    <a href="${link}" class="toast-body text-decoration-none text-white d-flex align-items-center gap-2">
+                        <i class="bi ${icon} fs-5"></i>
+                        <div>
+                            <strong>${title}</strong><br>
+                            <small>${message}</small>
+                        </div>
+                    </a>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            </div>`;
+        container.insertAdjacentHTML('beforeend', html);
+        const el = document.getElementById(id);
+        const bsToast = new bootstrap.Toast(el, { delay: 8000 });
+        bsToast.show();
+        el.addEventListener('hidden.bs.toast', () => el.remove());
+    }
+
+    async function poll() {
+        try {
+            const resp = await fetch('{{ route("api.notif") }}');
+            if (!resp.ok) return;
+            const data = await resp.json();
+
+            if (role === 'admin') {
+                const badgePermintaan = document.getElementById('badge-permintaan');
+                const badgePengajuan = document.getElementById('badge-pengajuan');
+
+                if (lastCounts.permintaan_pending !== undefined && data.permintaan_pending > lastCounts.permintaan_pending) {
+                    const diff = data.permintaan_pending - lastCounts.permintaan_pending;
+                    showToast('bi-inbox', 'primary', 'Permintaan Baru', diff + ' permintaan sparepart menunggu diproses', '{{ route("admin.barang-keluar") }}');
+                }
+                if (lastCounts.pengajuan_pending !== undefined && data.pengajuan_pending > lastCounts.pengajuan_pending) {
+                    showToast('bi-cart-plus', 'warning', 'Pengajuan Baru', 'Ada pengajuan pembelian baru', '{{ route("admin.pengajuan.index") }}');
+                }
+
+                updateBadge(badgePermintaan, data.permintaan_pending);
+                updateBadge(badgePengajuan, data.pengajuan_pending);
+                lastCounts = data;
+            }
+
+            if (role === 'pimpinan') {
+                const badgePengajuan = document.getElementById('badge-pengajuan');
+                const badgeOpname = document.getElementById('badge-opname');
+
+                if (lastCounts.pengajuan_pending !== undefined && data.pengajuan_pending > lastCounts.pengajuan_pending) {
+                    showToast('bi-cart-plus', 'warning', 'Pengajuan Menunggu', 'Ada pengajuan pembelian menunggu persetujuan', '{{ route("pimpinan.pengajuan.index") }}');
+                }
+                if (lastCounts.opname_pending !== undefined && data.opname_pending > lastCounts.opname_pending) {
+                    showToast('bi-clipboard-check', 'info', 'Stock Opname Baru', 'Ada stock opname menunggu review', '{{ route("pimpinan.stock-opname.index") }}');
+                }
+
+                updateBadge(badgePengajuan, data.pengajuan_pending);
+                updateBadge(badgeOpname, data.opname_pending);
+                lastCounts = data;
+            }
+        } catch (e) {
+            // silent fail
+        }
+    }
+
+    // Initial fetch to set baseline
+    poll();
+    // Poll every 5 detik
+    setInterval(poll, 5000);
+})();
+</script>
+@endif
 </body>
 </html>

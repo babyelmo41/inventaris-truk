@@ -115,4 +115,26 @@ class DashboardController extends Controller
             ],
         ]);
     }
+
+    public function getNotifCount(): \Illuminate\Http\JsonResponse
+    {
+        $user = session('auth_user');
+        $role = $user['role'] ?? '';
+
+        if ($role === 'admin') {
+            return response()->json([
+                'permintaan_pending' => \App\Models\BarangKeluar::where('status', 'pending')->count(),
+                'pengajuan_pending' => \App\Models\PengajuanPembelian::where('status', 'pending')->count(),
+            ]);
+        }
+
+        if ($role === 'pimpinan') {
+            return response()->json([
+                'pengajuan_pending' => \App\Models\PengajuanPembelian::where('status', 'pending')->count(),
+                'opname_pending' => \App\Models\StockOpname::whereIn('status', ['draft', 'submitted'])->count(),
+            ]);
+        }
+
+        return response()->json([]);
+    }
 }

@@ -23,13 +23,13 @@
             'section' => 'Transaksi',
             'items' => [
                 ['label' => 'Barang Masuk', 'icon' => 'bi-box-arrow-in-down', 'route' => 'admin.barang-masuk'],
-                ['label' => 'Barang Keluar', 'icon' => 'bi-box-arrow-up', 'route' => 'admin.barang-keluar', 'badge' => $permintaanPending ?: null, 'badge_color' => 'warning'],
+                ['label' => 'Barang Keluar', 'icon' => 'bi-box-arrow-up', 'route' => 'admin.barang-keluar', 'badge' => $permintaanPending ?: null, 'badge_color' => 'warning', 'badge_id' => 'badge-permintaan'],
             ],
         ],
         [
             'section' => 'Persetujuan',
             'items' => [
-                ['label' => 'Pengajuan Pembelian', 'icon' => 'bi-cart-plus', 'route' => 'admin.pengajuan.index', 'badge' => $pengajuanPending ?: null, 'badge_color' => 'warning'],
+                ['label' => 'Pengajuan Pembelian', 'icon' => 'bi-cart-plus', 'route' => 'admin.pengajuan.index', 'badge' => $pengajuanPending ?: null, 'badge_color' => 'warning', 'badge_id' => 'badge-pengajuan'],
                 ['label' => 'Stock Opname', 'icon' => 'bi-clipboard-check', 'route' => 'admin.stock-opname.index'],
             ],
         ],
@@ -59,7 +59,9 @@
                         <i class="bi {{ $item['icon'] }}"></i>
                         <span>{{ $item['label'] }}</span>
                         @if(!empty($item['badge']))
-                            <span class="badge rounded-pill bg-{{ $item['badge_color'] ?? 'danger' }} ms-auto">{{ $item['badge'] }}</span>
+                            <span class="badge rounded-pill bg-{{ $item['badge_color'] ?? 'danger' }} ms-auto" id="{{ $item['badge_id'] ?? '' }}">{{ $item['badge'] }}</span>
+                        @elseif(!empty($item['badge_id']))
+                            <span class="badge rounded-pill bg-{{ $item['badge_color'] ?? 'danger' }} ms-auto" id="{{ $item['badge_id'] }}" style="display:none;">0</span>
                         @endif
                     </a>
                 @endforeach

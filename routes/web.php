@@ -95,6 +95,9 @@ Route::middleware('simple.auth')->group(function () {
         Route::delete('/stock-opname/{stockOpname}', [StockOpnameController::class, 'destroy'])->name('stock-opname.destroy');
     });
 
+    // API endpoint untuk notifikasi polling (admin & pimpinan)
+    Route::get('/api/notif', [DashboardController::class, 'getNotifCount'])->name('api.notif');
+
     Route::prefix('pimpinan')->name('pimpinan.')->middleware('role:pimpinan')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'pimpinan'])->name('dashboard');
 
