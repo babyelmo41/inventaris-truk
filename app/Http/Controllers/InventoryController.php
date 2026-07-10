@@ -322,7 +322,7 @@ class InventoryController extends Controller
             'title' => 'Tambah Barang Masuk',
             'transaction' => null,
             'suppliers' => Supplier::all(),
-            'spareparts' => Sparepart::all(),
+            'spareparts' => Sparepart::orderBy('code')->get(),
             'generatedInvoiceNo' => CodeGenerator::invoiceNo(),
             'approvedPengajuan' => \App\Models\PengajuanPembelian::where('status', 'approved')
                 ->whereDoesntHave('barangMasuk') // belum punya barang masuk
@@ -379,7 +379,7 @@ class InventoryController extends Controller
             'title' => 'Edit Barang Masuk',
             'transaction' => $transaction->load('details.sparepart'),
             'suppliers' => Supplier::all(),
-            'spareparts' => Sparepart::all(),
+            'spareparts' => Sparepart::orderBy('code')->get(),
         ]);
     }
 
@@ -536,7 +536,7 @@ class InventoryController extends Controller
         return view('transactions.outgoing-form', [
             'title' => 'Edit Barang Keluar',
             'transaction' => $transaction->load('details.sparepart'),
-            'spareparts' => Sparepart::all(),
+            'spareparts' => Sparepart::orderBy('code')->get(),
         ]);
     }
 

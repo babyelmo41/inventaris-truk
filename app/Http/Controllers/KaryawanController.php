@@ -59,7 +59,7 @@ class KaryawanController extends Controller
     {
         return view('karyawan.permintaan-create', [
             'title' => 'Buat Permintaan Sparepart',
-            'spareparts' => Sparepart::orderBy('name')->get(),
+            'spareparts' => Sparepart::orderBy('code')->get(),
             'generatedPermintaanNo' => CodeGenerator::permintaanNo(),
         ]);
     }
@@ -177,7 +177,7 @@ class KaryawanController extends Controller
     {
         return view('karyawan.katalog', [
             'title' => 'Katalog Sparepart',
-            'spareparts' => Sparepart::with(['category', 'supplier'])->orderBy('name')->get(),
+            'spareparts' => Sparepart::with(['category', 'supplier'])->orderBy('code')->get(),
         ]);
     }
 

@@ -40,7 +40,7 @@ class PengajuanPembelianController extends Controller
     {
         return view('pengajuan.create', [
             'title' => 'Buat Pengajuan Pembelian',
-            'spareparts' => Sparepart::all(),
+            'spareparts' => Sparepart::orderBy('code')->get(),
             'generatedAjuanNo' => CodeGenerator::ajuanNo(),
         ]);
     }

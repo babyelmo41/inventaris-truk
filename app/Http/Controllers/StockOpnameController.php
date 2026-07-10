@@ -29,7 +29,7 @@ class StockOpnameController extends Controller
     {
         return view('stock-opname.create', [
             'title' => 'Buat Stock Opname',
-            'spareparts' => Sparepart::with(['category', 'supplier'])->get(),
+            'spareparts' => Sparepart::with(['category', 'supplier'])->orderBy('code')->get(),
             'generatedOpnameNo' => CodeGenerator::opnameNo(),
         ]);
     }
