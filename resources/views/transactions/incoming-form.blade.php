@@ -63,6 +63,27 @@
             </div>
         </div>
 
+        {{-- Rujukan Pengajuan (opsional) --}}
+        @if(!$transaction && isset($approvedPengajuan) && $approvedPengajuan->count() > 0)
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <label for="pengajuan_select" class="form-label fw-semibold">
+                    <i class="bi bi-link-45deg me-1"></i>Rujukan Pengajuan Pembelian <span class="text-muted">(opsional)</span>
+                </label>
+                <select class="form-select" id="pengajuan_select">
+                    <option value="">-- Tanpa Rujukan (input manual) --</option>
+                    @foreach($approvedPengajuan as $pgj)
+                        <option value="{{ $pgj->id }}" data-ajuan-no="{{ $pgj->ajuan_no }}">
+                            {{ $pgj->ajuan_no }} — {{ $pgj->date->format('d M Y') }} ({{ $pgj->details->count() }} item, Estimasi: {{ $pgj->total_estimasi_formatted }})
+                        </option>
+                    @endforeach
+                </select>
+                <input type="hidden" name="pengajuan_id" id="pengajuan_id" value="">
+                <div class="form-text">Pilih pengajuan yang sudah disetujui untuk mengisi item otomatis.</div>
+            </div>
+        </div>
+        @endif
+
         <div class="row mb-4">
             <div class="col-12">
                 <label for="notes" class="form-label fw-semibold">Catatan</label>
@@ -176,6 +197,54 @@ document.addEventListener('DOMContentLoaded', function() {
         timeInput.value = `${hours}:${minutes}`;
     }
     @endif
+
+    // Auto-fill dari pengajuan
+    const pengajuanSelect = document.getElementById('pengajuan_select');
+    const pengajuanIdInput = document.getElementById('pengajuan_id');
+    if (pengajuanSelect) {
+        pengajuanSelect.addEventListener('change', async function() {
+            const pgjId = this.value;
+            pengajuanIdInput.value = pgjId;
+
+            if (!pgjId) {
+                // Reset ke manual - kosongkan items
+                return;
+            }
+
+            try {
+                const resp = await fetch(`{{ url('/admin/barang-masuk/pengajuan') }}/${pgjId}`);
+                const data = await resp.json();
+
+                // Kosongkan tbody
+                const tbody = document.getElementById('itemsBody');
+                tbody.innerHTML = '';
+
+                // Isi item dari pengajuan
+                data.items.forEach(function(item, idx) {
+                    const newRow = document.createElement('tr');
+                    newRow.className = 'item-row';
+                    newRow.innerHTML = `
+                        <td><select class="form-select sparepart-select" name="items[${idx}][sparepart_id]" required>${sparepartOptions}</select></td>
+                        <td><span class="unit-display form-control-plaintext">-</span></td>
+                        <td><input type="number" class="form-control quantity-input" name="items[${idx}][quantity]" value="${item.quantity}" min="1" required></td>
+                        <td><input type="number" class="form-control price-input" name="items[${idx}][price]" value="${item.price}" min="0" required></td>
+                        <td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger remove-row"><i class="bi bi-trash"></i></button></td>
+                    `;
+                    tbody.appendChild(newRow);
+
+                    // Set sparepart selection
+                    const select = newRow.querySelector('.sparepart-select');
+                    select.value = item.sparepart_id;
+                    // Trigger change to update unit display
+                    select.dispatchEvent(new Event('change'));
+                });
+
+                rowIndex = data.items.length;
+            } catch (e) {
+                console.error('Gagal memuat detail pengajuan:', e);
+            }
+        });
+    }
 
     let rowIndex = {{ $transaction ? $transaction->details->count() : 1 }};
     const sparepartOptions = `<option value="">-- Pilih --</option>

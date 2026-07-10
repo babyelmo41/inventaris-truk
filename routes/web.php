@@ -60,6 +60,7 @@ Route::middleware('simple.auth')->group(function () {
         // Transactions - Barang Masuk
         Route::get('/barang-masuk', [InventoryController::class, 'incoming'])->name('barang-masuk');
         Route::get('/barang-masuk/create', [InventoryController::class, 'incomingCreate'])->name('barang-masuk.create');
+        Route::get('/barang-masuk/pengajuan/{pengajuan}', [InventoryController::class, 'getPengajuanDetails'])->name('barang-masuk.pengajuan-details');
         Route::post('/barang-masuk', [InventoryController::class, 'incomingStore'])->name('barang-masuk.store');
         Route::get('/barang-masuk/{transaction}/edit', [InventoryController::class, 'incomingEdit'])->name('barang-masuk.edit');
         Route::put('/barang-masuk/{transaction}', [InventoryController::class, 'incomingUpdate'])->name('barang-masuk.update');

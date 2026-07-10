@@ -37,6 +37,12 @@ class PengajuanPembelian extends Model
         return $this->hasMany(DetailPengajuanPembelian::class);
     }
 
+    // Relasi: barang masuk yang dibuat dari pengajuan ini
+    public function barangMasuk()
+    {
+        return $this->hasMany(BarangMasuk::class, 'pengajuan_id');
+    }
+
     // Total estimasi harga semua item
     public function getTotalEstimasiAttribute(): float
     {

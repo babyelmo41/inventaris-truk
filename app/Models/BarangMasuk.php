@@ -16,6 +16,7 @@ class BarangMasuk extends Model
         'user_id',
         'status',
         'approved_by',
+        'pengajuan_id',
         'notes',
     ];
 
@@ -45,5 +46,11 @@ class BarangMasuk extends Model
     public function approver()
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    // Relasi: rujukan pengajuan pembelian
+    public function pengajuan()
+    {
+        return $this->belongsTo(PengajuanPembelian::class, 'pengajuan_id');
     }
 }

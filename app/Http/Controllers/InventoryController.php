@@ -6,6 +6,7 @@ use App\Helpers\CodeGenerator;
 use App\Models\BarangKeluar;
 use App\Models\BarangMasuk;
 use App\Models\Category;
+use App\Models\PengajuanPembelian;
 use App\Models\Sparepart;
 use App\Models\Supplier;
 use App\Models\User;
@@ -323,6 +324,11 @@ class InventoryController extends Controller
             'suppliers' => Supplier::all(),
             'spareparts' => Sparepart::all(),
             'generatedInvoiceNo' => CodeGenerator::invoiceNo(),
+            'approvedPengajuan' => \App\Models\PengajuanPembelian::where('status', 'approved')
+                ->whereDoesntHave('barangMasuk') // belum punya barang masuk
+                ->with('details.sparepart')
+                ->latest('date')
+                ->get(),
         ]);
     }
 
@@ -348,6 +354,7 @@ class InventoryController extends Controller
             'user_id' => $request->session()->get('auth_user.id'),
             'status' => 'approved',
             'approved_by' => $request->session()->get('auth_user.id'),
+            'pengajuan_id' => $request->pengajuan_id ?: null,
             'notes' => $request->notes,
         ]);
 
@@ -418,6 +425,27 @@ class InventoryController extends Controller
         }
 
         return redirect()->route('admin.barang-masuk')->with('success', 'Barang masuk berhasil diupdate!');
+    }
+
+    /**
+     * API: Ambil detail pengajuan untuk auto-fill barang masuk
+     */
+    public function getPengajuanDetails(PengajuanPembelian $pengajuan): \Illuminate\Http\JsonResponse
+    {
+        $items = $pengajuan->details->map(function ($detail) {
+            return [
+                'sparepart_id' => $detail->sparepart_id,
+                'sparepart_name' => $detail->sparepart->code . ' - ' . $detail->sparepart->name,
+                'quantity' => $detail->quantity,
+                'price' => (int) $detail->price,
+            ];
+        });
+
+        return response()->json([
+            'ajuan_no' => $pengajuan->ajuan_no,
+            'supplier_id' => null, // pengajuan tidak punya supplier
+            'items' => $items,
+        ]);
     }
 
     public function incomingDestroy(BarangMasuk $transaction): RedirectResponse
