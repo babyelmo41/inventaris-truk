@@ -63,23 +63,35 @@
             </div>
         </div>
 
-        {{-- Rujukan Pengajuan (opsional) --}}
-        @if(!$transaction && isset($approvedPengajuan) && $approvedPengajuan->count() > 0)
+        {{-- Dasar Pengadaan (wajib) — hanya form baru --}}
+        @if(!$transaction)
         <div class="row mb-4">
             <div class="col-md-12">
-                <label for="pengajuan_select" class="form-label fw-semibold">
-                    <i class="bi bi-link-45deg me-1"></i>Rujukan Pengajuan Pembelian <span class="text-muted">(opsional)</span>
-                </label>
-                <select class="form-select" id="pengajuan_select">
-                    <option value="">-- Tanpa Rujukan (input manual) --</option>
-                    @foreach($approvedPengajuan as $pgj)
-                        <option value="{{ $pgj->id }}" data-ajuan-no="{{ $pgj->ajuan_no }}">
-                            {{ $pgj->ajuan_no }} — {{ $pgj->date->format('d M Y') }} ({{ $pgj->details->count() }} item, Estimasi: {{ $pgj->total_estimasi_formatted }})
-                        </option>
-                    @endforeach
-                </select>
-                <input type="hidden" name="pengajuan_id" id="pengajuan_id" value="">
-                <div class="form-text">Pilih pengajuan yang sudah disetujui untuk mengisi item otomatis.</div>
+                @if(isset($approvedPengajuan) && $approvedPengajuan->count() > 0)
+                    <label for="pengajuan_select" class="form-label fw-semibold">
+                        <i class="bi bi-link-45deg me-1"></i>Dasar Pengadaan (No. Pengajuan Disetujui) <span class="text-danger">*</span>
+                    </label>
+                    <select class="form-select @error('pengajuan_id') is-invalid @enderror" id="pengajuan_select" name="pengajuan_id" required>
+                        <option value="">-- Pilih Pengajuan Disetujui --</option>
+                        @foreach($approvedPengajuan as $pgj)
+                            <option value="{{ $pgj->id }}" {{ old('pengajuan_id') == $pgj->id ? 'selected' : '' }}>
+                                {{ $pgj->ajuan_no }} — {{ $pgj->date->format('d M Y') }} ({{ $pgj->details->count() }} item, Estimasi: {{ $pgj->total_estimasi_formatted }})
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('pengajuan_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                    <div class="form-text">Wajib pilih pengajuan yang sudah disetujui pimpinan.</div>
+                @else
+                    <div class="alert alert-warning d-flex align-items-center">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <div>
+                            <strong>Belum ada pengajuan yang disetujui.</strong><br>
+                            Silakan <a href="{{ route('admin.pengajuan.create') }}">buat pengajuan pembelian</a> terlebih dahulu, lalu minta persetujuan pimpinan.
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
         @endif
@@ -101,7 +113,15 @@
             <div class="alert alert-danger">{{ $message }}</div>
         @enderror
 
-        <div class="table-responsive mb-3">
+        {{-- Placeholder sebelum pengajuan dipilih (form baru saja) --}}
+        @if(!$transaction)
+        <div id="itemsPlaceholder" class="text-center text-muted py-5 border rounded mb-3 {{ (isset($approvedPengajuan) && $approvedPengajuan->count() > 0) ? '' : 'd-none' }}">
+            <i class="bi bi-inbox display-4 d-block mb-2"></i>
+            Pilih <strong>Dasar Pengadaan</strong> terlebih dahulu untuk mengisi item.
+        </div>
+        @endif
+
+        <div class="table-responsive mb-3" id="itemsTableWrapper" style="{{ !$transaction ? 'display:none' : '' }}">
             <table class="table table-bordered" id="itemsTable">
                 <thead class="table-light">
                     <tr>
@@ -109,7 +129,7 @@
                         <th style="width: 15%">Jumlah <span class="text-danger">*</span></th>
                         <th style="width: 15%">Satuan</th>
                         <th style="width: 20%">Harga Satuan <span class="text-danger">*</span></th>
-                        <th style="width: 10%">Aksi</th>
+                        <th style="width: 10%" class="action-col">Aksi</th>
                     </tr>
                 </thead>
                 <tbody id="itemsBody">
@@ -133,34 +153,11 @@
                                 <td>
                                     <input type="number" class="form-control price-input" name="items[{{ $loop->index }}][price]" value="{{ number_format($detail->price, 0, '', '') }}" min="0" required>
                                 </td>
-                                <td class="text-center">
+                                <td class="text-center action-col">
                                     <button type="button" class="btn btn-sm btn-outline-danger remove-row"><i class="bi bi-trash"></i></button>
                                 </td>
                             </tr>
                         @endforeach
-                    @else
-                        <tr class="item-row">
-                            <td>
-                                <select class="form-select sparepart-select" name="items[0][sparepart_id]" required>
-                                    <option value="">-- Pilih --</option>
-                                    @foreach($spareparts as $sparepart)
-                                        <option value="{{ $sparepart->id }}" data-unit="{{ $sparepart->unit }}">{{ $sparepart->code }} - {{ $sparepart->name }}</option>
-                                    @endforeach
-                                </select>
-                            </td>
-                            <td>
-                                <input type="number" class="form-control quantity-input" name="items[0][quantity]" value="1" min="1" required>
-                            </td>
-                            <td>
-                                <span class="unit-display form-control-plaintext">-</span>
-                            </td>
-                            <td>
-                                <input type="number" class="form-control price-input" name="items[0][price]" min="0" required>
-                            </td>
-                            <td class="text-center">
-                                <button type="button" class="btn btn-sm btn-outline-danger remove-row"><i class="bi bi-trash"></i></button>
-                            </td>
-                        </tr>
                     @endif
                 </tbody>
             </table>
@@ -172,7 +169,11 @@
 
         {{-- Submit --}}
         <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-2"></i>{{ $transaction ? 'Update' : 'Simpan' }}</button>
+            @if(!$transaction && (!isset($approvedPengajuan) || $approvedPengajuan->count() == 0))
+                <button type="submit" class="btn btn-primary" disabled><i class="bi bi-check-lg me-2"></i>Simpan</button>
+            @else
+                <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-2"></i>{{ $transaction ? 'Update' : 'Simpan' }}</button>
+            @endif
             <a href="{{ route('admin.barang-masuk') }}" class="btn btn-outline-secondary">Batal</a>
         </div>
     </form>
@@ -180,7 +181,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Set date & time dari device user (hanya untuk form baru)
+    // Set date & time dari device (form baru)
     @if(!$transaction)
     const now = new Date();
     const dateInput = document.getElementById('date');
@@ -198,16 +199,47 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     @endif
 
-    // Auto-fill dari pengajuan
+    const sparepartOptions = `<option value="">-- Pilih --</option>
+        @foreach($spareparts as $sparepart)
+            <option value="{{ $sparepart->id }}" data-unit="{{ $sparepart->unit }}">{{ $sparepart->code }} - {{ $sparepart->name }}</option>
+        @endforeach`;
+
     const pengajuanSelect = document.getElementById('pengajuan_select');
-    const pengajuanIdInput = document.getElementById('pengajuan_id');
+    const itemsPlaceholder = document.getElementById('itemsPlaceholder');
+    const itemsTableWrapper = document.getElementById('itemsTableWrapper');
+    const addItemBtn = document.getElementById('addItem');
+
+    // Lock semua field item (untuk pengajuan)
+    function lockItemFields() {
+        document.querySelectorAll('.sparepart-select').forEach(function(sel) {
+            const val = sel.value;
+            sel.setAttribute('disabled', true);
+            const hidden = document.createElement('input');
+            hidden.type = 'hidden';
+            hidden.name = sel.name;
+            hidden.value = val;
+            sel.closest('td').appendChild(hidden);
+        });
+        document.querySelectorAll('.quantity-input, .price-input').forEach(function(inp) {
+            inp.setAttribute('readonly', true);
+        });
+        document.querySelectorAll('.remove-row').forEach(function(btn) {
+            btn.style.display = 'none';
+        });
+        document.querySelectorAll('.action-col').forEach(function(el) {
+            el.style.display = 'none';
+        });
+        if (addItemBtn) addItemBtn.style.display = 'none';
+    }
+
+    // Auto-fill dari pengajuan
     if (pengajuanSelect) {
         pengajuanSelect.addEventListener('change', async function() {
             const pgjId = this.value;
-            pengajuanIdInput.value = pgjId;
 
             if (!pgjId) {
-                // Reset ke manual - kosongkan items
+                if (itemsPlaceholder) itemsPlaceholder.style.display = '';
+                if (itemsTableWrapper) itemsTableWrapper.style.display = 'none';
                 return;
             }
 
@@ -215,44 +247,51 @@ document.addEventListener('DOMContentLoaded', function() {
                 const resp = await fetch(`{{ url('/admin/barang-masuk/pengajuan') }}/${pgjId}`);
                 const data = await resp.json();
 
-                // Kosongkan tbody
                 const tbody = document.getElementById('itemsBody');
                 tbody.innerHTML = '';
 
-                // Isi item dari pengajuan
                 data.items.forEach(function(item, idx) {
                     const newRow = document.createElement('tr');
                     newRow.className = 'item-row';
                     newRow.innerHTML = `
-                        <td><select class="form-select sparepart-select" name="items[${idx}][sparepart_id]" required>${sparepartOptions}</select></td>
-                        <td><span class="unit-display form-control-plaintext">-</span></td>
+                        <td>
+                            <select class="form-select sparepart-select" name="items[${idx}][sparepart_id]" required>${sparepartOptions}</select>
+                        </td>
                         <td><input type="number" class="form-control quantity-input" name="items[${idx}][quantity]" value="${item.quantity}" min="1" required></td>
+                        <td><span class="unit-display form-control-plaintext">-</span></td>
                         <td><input type="number" class="form-control price-input" name="items[${idx}][price]" value="${item.price}" min="0" required></td>
-                        <td class="text-center"><button type="button" class="btn btn-sm btn-outline-danger remove-row"><i class="bi bi-trash"></i></button></td>
+                        <td class="text-center action-col"><button type="button" class="btn btn-sm btn-outline-danger remove-row"><i class="bi bi-trash"></i></button></td>
                     `;
                     tbody.appendChild(newRow);
 
-                    // Set sparepart selection
                     const select = newRow.querySelector('.sparepart-select');
                     select.value = item.sparepart_id;
-                    // Trigger change to update unit display
                     select.dispatchEvent(new Event('change'));
                 });
 
                 rowIndex = data.items.length;
+
+                // Tampilkan tabel, sembunyikan placeholder
+                if (itemsPlaceholder) itemsPlaceholder.style.display = 'none';
+                if (itemsTableWrapper) itemsTableWrapper.style.display = '';
+
+                // Kunci field
+                lockItemFields();
+
             } catch (e) {
                 console.error('Gagal memuat detail pengajuan:', e);
             }
         });
+
+        // Auto-trigger jika ada old value (validation error redirect)
+        if (pengajuanSelect.value) {
+            pengajuanSelect.dispatchEvent(new Event('change'));
+        }
     }
 
-    let rowIndex = {{ $transaction ? $transaction->details->count() : 1 }};
-    const sparepartOptions = `<option value="">-- Pilih --</option>
-        @foreach($spareparts as $sparepart)
-            <option value="{{ $sparepart->id }}" data-unit="{{ $sparepart->unit }}">{{ $sparepart->code }} - {{ $sparepart->name }}</option>
-        @endforeach`;
+    let rowIndex = {{ $transaction ? $transaction->details->count() : 0 }};
 
-    // Add item row
+    // Add item row (hanya untuk edit mode)
     document.getElementById('addItem').addEventListener('click', function() {
         const tbody = document.getElementById('itemsBody');
         const newRow = document.createElement('tr');
@@ -272,7 +311,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <td>
                 <input type="number" class="form-control price-input" name="items[${rowIndex}][price]" min="0" required>
             </td>
-            <td class="text-center">
+            <td class="text-center action-col">
                 <button type="button" class="btn btn-sm btn-outline-danger remove-row"><i class="bi bi-trash"></i></button>
             </td>
         `;

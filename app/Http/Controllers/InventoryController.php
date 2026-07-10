@@ -339,6 +339,7 @@ class InventoryController extends Controller
             'time' => 'required',
             'invoice_no' => 'required|unique:barang_masuk,invoice_no',
             'supplier_id' => 'required|exists:suppliers,id',
+            'pengajuan_id' => 'required|exists:pengajuan_pembelian,id',
             'notes' => 'nullable',
             'items' => 'required|array|min:1',
             'items.*.sparepart_id' => 'required|exists:spareparts,id',
@@ -354,7 +355,7 @@ class InventoryController extends Controller
             'user_id' => $request->session()->get('auth_user.id'),
             'status' => 'approved',
             'approved_by' => $request->session()->get('auth_user.id'),
-            'pengajuan_id' => $request->pengajuan_id ?: null,
+            'pengajuan_id' => $request->pengajuan_id,
             'notes' => $request->notes,
         ]);
 
